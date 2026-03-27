@@ -1,0 +1,168 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { gapSentences } from "../../data/fill-the-gap";
+---
+
+<Layout title="Fill the Gap — Spanish with Elena Ramón">
+  <section class="max-w-2xl mx-auto px-6 py-12">
+    <div class="mb-8">
+      <a href="/games" class="text-sm text-primary hover:underline">&larr; All Games</a>
+    </div>
+    <h1 class="text-3xl md:text-4xl font-bold text-primary mb-2 text-center">Fill the Gap</h1>
+    <p class="text-gray-500 text-center mb-8">Pick the correct word to complete the Spanish sentence.</p>
+
+    <div class="flex items-center gap-4 mb-6">
+      <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div id="progress-bar" class="h-full bg-primary rounded-full transition-all duration-300" style="width: 0%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+      <span id="progress-text" class="text-sm text-gray-500">0 / 15</span>
+      <button id="btn-restart-mid" class="text-xs text-gray-500 hover:text-primary transition-colors cursor-pointer">Restart</button>
+    </div>
+
+    <div id="game">
+      <!-- English hint -->
+      <div class="text-center mb-2">
+        <p class="text-xs uppercase tracking-wider text-gray-500">English</p>
+        <p id="english" class="text-sm text-gray-500 italic"></p>
+      </div>
+
+      <!-- Spanish sentence with gap -->
+      <div class="p-8 rounded-2xl border-2 border-primary/20 bg-white shadow-sm text-center mb-8">
+        <p id="sentence" class="text-2xl font-bold text-gray-800"></p>
+      </div>
+
+      <!-- Options -->
+      <div id="options" class="grid grid-cols-2 gap-3 mb-4"></div>
+
+      <p id="feedback" class="text-center text-sm h-5 font-bold" aria-live="polite"></p>
+      <button id="btn-continue" class="mt-4 mx-auto block px-6 py-2 rounded-lg font-bold border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors hidden cursor-pointer">Continue</button>
+    </div>
+
+    <!-- Results -->
+    <div id="results" class="text-center hidden">
+      <p class="text-5xl mb-4" aria-hidden="true">&#127891;</p>
+      <h2 class="text-2xl font-bold text-primary mb-2">Round Complete!</h2>
+      <p id="result-score" class="text-gray-600 mb-2"></p>
+      <p id="result-detail" class="text-sm text-gray-500 mb-6"></p>
+      <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Play Again</button>
+    </div>
+  </section>
+
+  <script define:vars={{ gapSentences }}>
+    const allSentences = gapSentences;
+    const ROUND_SIZE = 15;
+    let deck = [], index = 0, correct = 0, mistakes = [], answered = false;
+
+    const $ = (id) => document.getElementById(id);
+    const sentenceEl = $("sentence"), englishEl = $("english"), optionsEl = $("options");
+    const feedback = $("feedback"), game = $("game"), results = $("results");
+    const progressBar = $("progress-bar"), progressText = $("progress-text");
+
+    function shuffle(a) { const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
+
+    // State persistence
+    const GK = "game_fill_the_gap", EXP = 3600000;
+    function save() { try { localStorage.setItem(GK, JSON.stringify({ deck, index, correct, mistakes, _t: Date.now() })); } catch {} }
+    function load() { try { const r = localStorage.getItem(GK); if (!r) return null; const s = JSON.parse(r); if (Date.now() - s._t > EXP) { localStorage.removeItem(GK); return null; } return s; } catch { return null; } }
+    function clear() { try { localStorage.removeItem(GK); } catch {} }
+
+    function start(fresh) {
+      const saved = !fresh && load();
+      if (saved) { deck = saved.deck; index = saved.index; correct = saved.correct; mistakes = saved.mistakes; }
+      else { deck = shuffle(allSentences).slice(0, ROUND_SIZE); index = 0; correct = 0; mistakes = []; }
+      results.classList.add("hidden"); game.classList.remove("hidden");
+      $("btn-continue").classList.add("hidden");
+      showQuestion();
+    }
+
+    function showQuestion() {
+      answered = false;
+      const q = deck[index];
+      englishEl.textContent = q.en;
+
+      // Render sentence with highlighted blank
+      const parts = q.sentence.split("___");
+      sentenceEl.innerHTML = parts[0] +
+        '<span class="inline-block min-w-[4rem] border-b-4 border-primary/40 mx-1 text-primary">?</span>' +
+        (parts[1] || "");
+
+      // Shuffle options
+      const opts = shuffle([q.answer, ...q.distractors]);
+      optionsEl.innerHTML = "";
+      opts.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "px-4 py-3 rounded-lg border-2 border-gray-200 font-bold hover:border-primary/40 transition-colors text-sm cursor-pointer";
+        btn.textContent = opt;
+        btn.addEventListener("click", () => handleAnswer(opt, btn));
+        optionsEl.appendChild(btn);
+      });
+
+      feedback.textContent = "";
+      updateProgress();
+    }
+
+    function handleAnswer(answer, btn) {
+      if (answered) return;
+      answered = true;
+      const q = deck[index];
+      const allBtns = optionsEl.querySelectorAll("button");
+      allBtns.forEach(b => b.style.pointerEvents = "none");
+
+      // Fill in the blank in the sentence
+      const parts = q.sentence.split("___");
+
+      if (answer === q.answer) {
+        correct++;
+        btn.classList.add("border-green-500", "bg-green-50");
+        sentenceEl.innerHTML = parts[0] +
+          '<span class="text-green-700 font-bold">' + q.answer + '</span>' +
+          (parts[1] || "");
+        feedback.textContent = "Correct!";
+        feedback.className = "text-center text-sm h-5 font-bold text-green-700";
+        setTimeout(advance, 800);
+      } else {
+        mistakes.push(q);
+        btn.classList.add("border-red-400", "bg-red-50");
+        allBtns.forEach(b => { if (b.textContent === q.answer) b.classList.add("border-green-500", "bg-green-50"); });
+        sentenceEl.innerHTML = parts[0] +
+          '<span class="text-red-600 line-through mr-1">' + answer + '</span>' +
+          '<span class="text-green-700 font-bold">' + q.answer + '</span>' +
+          (parts[1] || "");
+        feedback.textContent = "The answer is: " + q.answer;
+        feedback.className = "text-center text-sm h-5 font-bold text-red-600";
+        $("btn-continue").classList.remove("hidden");
+      }
+    }
+
+    function advance() {
+      index++;
+      if (index >= deck.length) {
+        clear();
+        game.classList.add("hidden");
+        results.classList.remove("hidden");
+        const pct = Math.round(correct / deck.length * 100);
+        $("result-score").textContent = correct + " out of " + deck.length + " correct (" + pct + "%)";
+        if (mistakes.length) {
+          $("result-detail").textContent = "Review: " + mistakes.map(m => m.sentence.replace("___", m.answer)).join(" | ");
+        } else {
+          $("result-detail").textContent = "Perfect grammar!";
+        }
+        progressBar.style.width = "100%";
+        progressText.textContent = deck.length + " / " + deck.length;
+      } else {
+        save();
+        showQuestion();
+      }
+    }
+
+    function updateProgress() {
+      progressBar.style.width = (index / deck.length * 100) + "%";
+      progressText.textContent = index + " / " + deck.length;
+    }
+
+    $("btn-continue").addEventListener("click", () => { $("btn-continue").classList.add("hidden"); advance(); });
+    $("btn-restart").addEventListener("click", () => { clear(); start(true); });
+    $("btn-restart-mid").addEventListener("click", () => { clear(); start(true); });
+    start();
+  </script>
+</Layout>

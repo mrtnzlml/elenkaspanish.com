@@ -1,0 +1,134 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { categories } from "../../data/words";
+
+// Pick 8 random pairs for a 4x4 grid
+const allWords = categories.flatMap((c) => c.words);
+---
+
+<Layout title="Memory Match — Spanish with Elena Ramón">
+  <section class="max-w-2xl mx-auto px-6 py-12">
+    <div class="mb-8">
+      <a href="/games" class="text-sm text-primary hover:underline">&larr; All Games</a>
+    </div>
+    <h1 class="text-3xl md:text-4xl font-bold text-primary mb-2 text-center">Memory Match</h1>
+    <p class="text-gray-500 text-center mb-2">Find matching Spanish-English pairs!</p>
+
+    <div class="flex items-center justify-between mb-6">
+      <p id="stats" class="text-sm text-gray-500" role="status">Moves: 0 &middot; Matched: 0/8</p>
+      <button id="btn-new" class="text-sm text-primary font-bold hover:underline cursor-pointer">New Game</button>
+    </div>
+
+    <div id="grid" class="grid grid-cols-4 gap-3"></div>
+
+    <div id="win" class="text-center hidden mt-8">
+      <p class="text-5xl mb-4" aria-hidden="true">&#127942;</p>
+      <h2 class="text-2xl font-bold text-primary mb-2">You Won!</h2>
+      <p id="win-msg" class="text-gray-600 mb-6"></p>
+      <button id="btn-play-again" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Play Again</button>
+    </div>
+  </section>
+
+  <script define:vars={{ allWords }}>
+    const words = allWords;
+    let cards = [], first = null, second = null, locked = false, moves = 0, matched = 0;
+
+    const GK = "game_memory_stats", EXP = 3600000;
+    function loadStats() { try { const r = localStorage.getItem(GK); if (!r) return { bestMoves: null }; const s = JSON.parse(r); if (Date.now() - s._t > EXP) { localStorage.removeItem(GK); return { bestMoves: null }; } return s; } catch { return { bestMoves: null }; } }
+    function saveStats(m) { try { const prev = loadStats(); const best = prev.bestMoves === null ? m : Math.min(prev.bestMoves, m); localStorage.setItem(GK, JSON.stringify({ bestMoves: best, _t: Date.now() })); return best; } catch { return m; } }
+
+    const grid = document.getElementById("grid");
+    const stats = document.getElementById("stats");
+    const win = document.getElementById("win");
+    const winMsg = document.getElementById("win-msg");
+
+    function shuffle(a) { const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
+
+    function newGame() {
+      const picked = shuffle(words).slice(0, 8);
+      const tiles = shuffle([
+        ...picked.map((w, i) => ({ id: i, text: w.es, lang: "es" })),
+        ...picked.map((w, i) => ({ id: i, text: w.en, lang: "en" })),
+      ]);
+      cards = tiles;
+      first = null; second = null; locked = false; moves = 0; matched = 0;
+      win.classList.add("hidden");
+      grid.innerHTML = "";
+      tiles.forEach((tile, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "h-20 sm:h-24 rounded-xl border-2 border-gray-200 bg-white text-sm font-bold flex items-center justify-center p-2 text-center transition-all hover:border-primary/40 cursor-pointer select-none";
+        btn.dataset.idx = String(idx);
+        btn.textContent = "?";
+        btn.addEventListener("click", () => handleClick(idx, btn));
+        grid.appendChild(btn);
+      });
+      updateStats();
+    }
+
+    function handleClick(idx, btn) {
+      if (locked) return;
+      if (btn.dataset.revealed === "true") return;
+      if (first && first.idx === idx) return;
+
+      reveal(idx, btn);
+
+      if (!first) {
+        first = { idx, btn, card: cards[idx] };
+      } else {
+        second = { idx, btn, card: cards[idx] };
+        moves++;
+        locked = true;
+
+        if (first.card.id === second.card.id && first.card.lang !== second.card.lang) {
+          // Match!
+          matched++;
+          first.btn.classList.add("border-green-500", "bg-green-50");
+          second.btn.classList.add("border-green-500", "bg-green-50");
+          first = null; second = null; locked = false;
+          updateStats();
+          if (matched === 8) {
+            setTimeout(() => {
+              win.classList.remove("hidden");
+              const best = saveStats(moves);
+              winMsg.textContent = "Completed in " + moves + " moves!" + (best < moves ? " Best: " + best : moves === best ? " New best!" : "");
+            }, 400);
+          }
+        } else {
+          // No match
+          first.btn.classList.add("border-red-400");
+          second.btn.classList.add("border-red-400");
+          setTimeout(() => {
+            hide(first.idx, first.btn);
+            hide(second.idx, second.btn);
+            first.btn.classList.remove("border-red-400");
+            second.btn.classList.remove("border-red-400");
+            first = null; second = null; locked = false;
+          }, 800);
+        }
+        updateStats();
+      }
+    }
+
+    function reveal(idx, btn) {
+      const card = cards[idx];
+      btn.textContent = card.text;
+      btn.dataset.revealed = "true";
+      btn.classList.add(card.lang === "es" ? "text-primary" : "text-gray-800");
+      btn.classList.add("border-primary/40");
+    }
+
+    function hide(idx, btn) {
+      btn.textContent = "?";
+      btn.dataset.revealed = "false";
+      btn.classList.remove("text-primary", "text-gray-800", "border-primary/40");
+    }
+
+    function updateStats() {
+      stats.textContent = "Moves: " + moves + " \u00B7 Matched: " + matched + "/8";
+    }
+
+    document.getElementById("btn-new").addEventListener("click", newGame);
+    document.getElementById("btn-play-again").addEventListener("click", newGame);
+    newGame();
+  </script>
+</Layout>

@@ -1,0 +1,145 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { verbs } from "../../data/verbs";
+---
+
+<Layout title="Verb Conjugation — Spanish with Elena Ramón">
+  <section class="max-w-2xl mx-auto px-6 py-12">
+    <div class="mb-8">
+      <a href="/games" class="text-sm text-primary hover:underline">&larr; All Games</a>
+    </div>
+    <h1 class="text-3xl md:text-4xl font-bold text-primary mb-2 text-center">Verb Conjugation</h1>
+    <p class="text-gray-500 text-center mb-8">Type the correct conjugation for each verb.</p>
+
+    <div class="flex items-center gap-4 mb-6">
+      <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div id="progress-bar" class="h-full bg-primary rounded-full transition-all duration-300" style="width: 0%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+      <span id="progress-text" class="text-sm text-gray-500">0 / 10</span>
+      <button id="btn-restart-mid" class="text-xs text-gray-500 hover:text-primary transition-colors cursor-pointer">Restart</button>
+    </div>
+
+    <div id="game">
+      <div class="p-8 rounded-2xl border-2 border-primary/20 bg-white shadow-sm text-center mb-6">
+        <p class="text-sm text-gray-500 mb-4">Conjugate this verb:</p>
+        <p id="verb-info" class="text-2xl font-bold text-primary mb-1"></p>
+        <p id="verb-detail" class="text-sm text-gray-500"></p>
+      </div>
+
+      <div class="flex gap-3 justify-center mb-4">
+        <input
+          id="answer-input"
+          type="text"
+          class="w-64 px-4 py-3 rounded-lg border-2 border-gray-200 text-center font-bold text-lg focus:outline-none focus:border-primary transition-colors"
+          placeholder="Type conjugation..."
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+        />
+        <button id="btn-check" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Check</button>
+      </div>
+      <p id="feedback" class="text-center text-sm h-5" aria-live="polite"></p>
+      <button id="btn-continue" class="mt-4 mx-auto block px-6 py-2 rounded-lg font-bold border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors hidden cursor-pointer">Continue</button>
+    </div>
+
+    <div id="results" class="text-center hidden">
+      <p class="text-5xl mb-4" aria-hidden="true">&#127881;</p>
+      <h2 class="text-2xl font-bold text-primary mb-2">Round Complete!</h2>
+      <p id="result-score" class="text-gray-600 mb-2"></p>
+      <p id="result-mistakes" class="text-sm text-gray-500 mb-6"></p>
+      <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Play Again</button>
+    </div>
+  </section>
+
+  <script define:vars={{ verbs }}>
+    const allVerbs = verbs;
+    let deck = [], index = 0, correct = 0, mistakes = [];
+    const ROUND_SIZE = 10;
+
+    const $ = (id) => document.getElementById(id);
+    const verbInfo = $("verb-info"), verbDetail = $("verb-detail");
+    const answerInput = $("answer-input"), feedback = $("feedback");
+    const game = $("game"), results = $("results");
+    const progressBar = $("progress-bar"), progressText = $("progress-text");
+
+    function shuffle(a) { const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
+
+    const GK = "game_verb_conjugation", EXP = 3600000;
+    function save() { try { localStorage.setItem(GK, JSON.stringify({ deck, index, correct, mistakes, _t: Date.now() })); } catch {} }
+    function load() { try { const r = localStorage.getItem(GK); if (!r) return null; const s = JSON.parse(r); if (Date.now() - s._t > EXP) { localStorage.removeItem(GK); return null; } return s; } catch { return null; } }
+    function clear() { try { localStorage.removeItem(GK); } catch {} }
+
+    function start(fresh) {
+      const saved = !fresh && load();
+      if (saved) { deck = saved.deck; index = saved.index; correct = saved.correct; mistakes = saved.mistakes; }
+      else { deck = shuffle(allVerbs).slice(0, ROUND_SIZE); index = 0; correct = 0; mistakes = []; }
+      results.classList.add("hidden"); game.classList.remove("hidden");
+      $("btn-continue").classList.add("hidden");
+      showChallenge();
+    }
+
+    function showChallenge() {
+      const v = deck[index];
+      verbInfo.textContent = v.pronoun + " + " + v.infinitive;
+      verbDetail.textContent = "(" + v.meaning + " \u2014 " + v.tense + ")";
+      answerInput.value = "";
+      answerInput.classList.remove("border-green-500", "border-red-400");
+      answerInput.classList.add("border-gray-200");
+      feedback.textContent = "";
+      answerInput.focus();
+      updateProgress();
+    }
+
+    function check() {
+      const v = deck[index];
+      const userAnswer = answerInput.value.trim().toLowerCase();
+      if (!userAnswer) return;
+
+      if (userAnswer === v.answer.toLowerCase()) {
+        correct++;
+        answerInput.classList.replace("border-gray-200", "border-green-500");
+        feedback.textContent = "Correct!";
+        feedback.className = "text-center text-sm h-5 text-green-700 font-bold";
+        setTimeout(advance, 800);
+      } else {
+        mistakes.push(v);
+        answerInput.classList.replace("border-gray-200", "border-red-400");
+        answerInput.value = v.answer;
+        feedback.textContent = "The correct answer is: " + v.answer;
+        feedback.className = "text-center text-sm h-5 text-red-600 font-bold";
+        $("btn-continue").classList.remove("hidden");
+      }
+    }
+
+    function advance() {
+      index++;
+      if (index >= deck.length) {
+        clear();
+        game.classList.add("hidden");
+        results.classList.remove("hidden");
+        $("result-score").textContent = correct + " out of " + deck.length + " correct!";
+        if (mistakes.length) {
+          $("result-mistakes").textContent = "Review: " + mistakes.map(m => m.pronoun + " " + m.infinitive + " \u2192 " + m.answer).join(", ");
+        } else {
+          $("result-mistakes").textContent = "Perfect conjugation!";
+        }
+        progressBar.style.width = "100%";
+      } else {
+        save();
+        showChallenge();
+      }
+    }
+
+    function updateProgress() {
+      progressBar.style.width = (index / deck.length * 100) + "%";
+      progressText.textContent = index + " / " + deck.length;
+    }
+
+    $("btn-continue").addEventListener("click", () => { $("btn-continue").classList.add("hidden"); advance(); });
+    $("btn-check").addEventListener("click", check);
+    answerInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { if ($("btn-continue").classList.contains("hidden")) check(); else { $("btn-continue").classList.add("hidden"); advance(); } } });
+    $("btn-restart").addEventListener("click", () => { clear(); start(true); });
+    $("btn-restart-mid").addEventListener("click", () => { clear(); start(true); });
+    start();
+  </script>
+</Layout>

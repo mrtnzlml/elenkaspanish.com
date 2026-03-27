@@ -1,0 +1,203 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Spanish with Elena Ramón — Your Spanish, Your Adventure",
+  description = "Personalized online Spanish lessons with a native speaker. Tailor-made classes for all levels.",
+} = Astro.props;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: "Spanish with Elena Ramón",
+  description:
+    "Personalized online Spanish lessons with a native speaker. Tailor-made classes for all levels.",
+  url: "https://elenkaspanish.com",
+  email: "elenkaspanish@gmail.com",
+  telephone: "+420773710520",
+  image: "https://elenkaspanish.com/elena.jpg",
+  priceRange: "24 USD",
+  address: {
+    "@type": "PostalAddress",
+    addressCountry: "CZ",
+  },
+  sameAs: [],
+};
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="https://elenkaspanish.com/elena.jpg" />
+    <meta property="og:url" content="https://elenkaspanish.com" />
+    <meta property="og:site_name" content="Spanish with Elena Ramón" />
+
+    <!-- Font preload -->
+    <link
+      rel="preload"
+      href="https://fonts.gstatic.com/s/manrope/v15/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk59FO_F87jxeN7B.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="https://fonts.gstatic.com/s/manrope/v15/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk4GE-_F87jxeN7B.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <!-- Structured data -->
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <style>
+      .nav-open {
+        display: flex !important;
+      }
+    </style>
+  </head>
+  <body class="bg-cream text-gray-800 font-sans antialiased">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary focus:text-white focus:px-4 focus:py-2 focus:rounded-lg">
+      Skip to content
+    </a>
+    <header class="border-b border-gray-200 sticky top-0 z-50 bg-cream/95 backdrop-blur-sm">
+      <nav class="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between" aria-label="Main navigation">
+        <a href="/" class="text-xl font-bold text-primary">
+          Elenka Spanish
+        </a>
+
+        <!-- Hamburger button (mobile) -->
+        <button
+          id="menu-toggle"
+          class="md:hidden flex flex-col gap-1.5 p-2 -mr-2 cursor-pointer"
+          aria-label="Toggle menu"
+          aria-expanded="false"
+        >
+          <span class="block w-6 h-0.5 bg-gray-800 transition-transform" id="bar1"></span>
+          <span class="block w-6 h-0.5 bg-gray-800 transition-opacity" id="bar2"></span>
+          <span class="block w-6 h-0.5 bg-gray-800 transition-transform" id="bar3"></span>
+        </button>
+
+        <!-- Desktop nav -->
+        <div class="hidden md:flex items-center gap-6">
+          <a href="/faq" class="hover:text-primary transition-colors">FAQ</a>
+          <div class="relative" id="dropdown-wrapper">
+            <button
+              id="dropdown-toggle"
+              class="hover:text-primary transition-colors flex items-center gap-1 cursor-pointer"
+              aria-expanded="false"
+            >
+              For Students
+              <svg class="w-4 h-4 transition-transform" id="dropdown-arrow" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <div
+              id="dropdown-menu"
+              class="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl border border-gray-200 shadow-lg py-2 hidden z-50"
+            >
+              <a href="/games" class="block px-4 py-2 text-sm hover:bg-gray-50 hover:text-primary transition-colors">Games</a>
+              <a href="/whiteboard" class="block px-4 py-2 text-sm hover:bg-gray-50 hover:text-primary transition-colors">Whiteboard</a>
+            </div>
+          </div>
+          <a
+            href="/questionnaire"
+            class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Questionnaire
+          </a>
+        </div>
+      </nav>
+
+      <!-- Mobile nav -->
+      <div
+        id="mobile-menu"
+        class="hidden flex-col gap-4 px-6 pb-6 md:hidden border-t border-gray-200"
+      >
+        <a href="/faq" class="hover:text-primary transition-colors py-1">FAQ</a>
+        <p class="text-xs uppercase tracking-wider text-gray-500 pt-2">For Students</p>
+        <a href="/games" class="hover:text-primary transition-colors py-1 pl-3">Games</a>
+        <a href="/whiteboard" class="hover:text-primary transition-colors py-1 pl-3">Whiteboard</a>
+        <a
+          href="/questionnaire"
+          class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-center"
+        >
+          Questionnaire
+        </a>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <slot />
+    </main>
+
+    <footer class="border-t border-gray-200 mt-16">
+      <div class="max-w-4xl mx-auto px-6 py-8 text-center text-sm text-gray-500">
+        &copy; {new Date().getFullYear()} Spanish with Elena Ramón. All rights reserved.
+      </div>
+    </footer>
+
+    <script>
+      const toggle = document.getElementById("menu-toggle")!;
+      const menu = document.getElementById("mobile-menu")!;
+      const bar1 = document.getElementById("bar1")!;
+      const bar2 = document.getElementById("bar2")!;
+      const bar3 = document.getElementById("bar3")!;
+
+      toggle.addEventListener("click", () => {
+        const open = menu.classList.toggle("nav-open");
+        toggle.setAttribute("aria-expanded", String(open));
+        bar1.style.transform = open ? "rotate(45deg) translate(4px, 4px)" : "";
+        bar2.style.opacity = open ? "0" : "1";
+        bar3.style.transform = open ? "rotate(-45deg) translate(4px, -4px)" : "";
+      });
+
+      // Close mobile menu when a link is clicked
+      menu.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => {
+          menu.classList.remove("nav-open");
+          toggle.setAttribute("aria-expanded", "false");
+          bar1.style.transform = "";
+          bar2.style.opacity = "1";
+          bar3.style.transform = "";
+        });
+      });
+
+      // Desktop dropdown
+      const ddToggle = document.getElementById("dropdown-toggle")!;
+      const ddMenu = document.getElementById("dropdown-menu")!;
+      const ddArrow = document.getElementById("dropdown-arrow")!;
+
+      ddToggle.addEventListener("click", () => {
+        const open = ddMenu.classList.toggle("hidden");
+        ddToggle.setAttribute("aria-expanded", String(!open));
+        ddArrow.style.transform = !open ? "rotate(180deg)" : "";
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener("click", (e) => {
+        if (!document.getElementById("dropdown-wrapper")!.contains(e.target as Node)) {
+          ddMenu.classList.add("hidden");
+          ddToggle.setAttribute("aria-expanded", "false");
+          ddArrow.style.transform = "";
+        }
+      });
+    </script>
+  </body>
+</html>

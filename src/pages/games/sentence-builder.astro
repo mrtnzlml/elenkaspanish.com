@@ -1,0 +1,195 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { sentences } from "../../data/sentences";
+---
+
+<Layout title="Sentence Builder — Spanish with Elena Ramón">
+  <section class="max-w-2xl mx-auto px-6 py-12">
+    <div class="mb-8">
+      <a href="/games" class="text-sm text-primary hover:underline">&larr; All Games</a>
+    </div>
+    <h1 class="text-3xl md:text-4xl font-bold text-primary mb-2 text-center">Sentence Builder</h1>
+    <p class="text-gray-500 text-center mb-8">Tap the words in the correct order to build the Spanish sentence.</p>
+
+    <div class="flex items-center gap-4 mb-6">
+      <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div id="progress-bar" class="h-full bg-primary rounded-full transition-all duration-300" style="width: 0%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+      <span id="progress-text" class="text-sm text-gray-500">0 / 20</span>
+      <button id="btn-restart-mid" class="text-xs text-gray-500 hover:text-primary transition-colors cursor-pointer">Restart</button>
+    </div>
+
+    <!-- Game area -->
+    <div id="game" class="">
+      <div class="text-center mb-6">
+        <p class="text-xs uppercase tracking-wider text-gray-500 mb-2">English</p>
+        <p id="english" class="text-xl font-bold text-gray-800"></p>
+      </div>
+
+      <!-- Answer slots -->
+      <div id="answer" class="min-h-[3.5rem] flex flex-wrap gap-2 justify-center p-4 rounded-xl border-2 border-dashed border-gray-300 mb-6"></div>
+
+      <!-- Word bank -->
+      <div id="word-bank" class="flex flex-wrap gap-2 justify-center mb-6"></div>
+
+      <div class="flex gap-3 justify-center">
+        <button id="btn-clear" class="px-4 py-2 rounded-lg text-sm font-bold border-2 border-gray-300 text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer">Clear</button>
+        <button id="btn-check" class="px-6 py-2 rounded-lg text-sm font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Check</button>
+      </div>
+
+      <p id="feedback" class="text-center text-sm mt-4 h-5" aria-live="polite"></p>
+      <button id="btn-continue" class="mt-4 mx-auto block px-6 py-2 rounded-lg font-bold border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors hidden cursor-pointer">Continue</button>
+    </div>
+
+    <!-- Results -->
+    <div id="results" class="text-center hidden">
+      <p class="text-5xl mb-4" aria-hidden="true">&#127881;</p>
+      <h2 class="text-2xl font-bold text-primary mb-2">All Done!</h2>
+      <p id="result-score" class="text-gray-600 mb-6"></p>
+      <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Play Again</button>
+    </div>
+  </section>
+
+  <script define:vars={{ sentences }}>
+    const allSentences = sentences;
+    let deck = [], index = 0, correct = 0, placed = [];
+
+    const $ = (id) => document.getElementById(id);
+    const answer = $("answer"), wordBank = $("word-bank"), english = $("english");
+    const feedback = $("feedback"), results = $("results"), game = $("game");
+    const progressBar = $("progress-bar"), progressText = $("progress-text");
+
+    function shuffle(a) { const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
+
+    const GK = "game_sentence_builder", EXP = 3600000;
+    function save() { try { localStorage.setItem(GK, JSON.stringify({ deck, index, correct, _t: Date.now() })); } catch {} }
+    function load() { try { const r = localStorage.getItem(GK); if (!r) return null; const s = JSON.parse(r); if (Date.now() - s._t > EXP) { localStorage.removeItem(GK); return null; } return s; } catch { return null; } }
+    function clear() { try { localStorage.removeItem(GK); } catch {} }
+
+    function start(fresh) {
+      const saved = !fresh && load();
+      if (saved) { deck = saved.deck; index = saved.index; correct = saved.correct; }
+      else { deck = shuffle(allSentences); index = 0; correct = 0; }
+      mistakes = [];
+      results.classList.add("hidden"); game.classList.remove("hidden");
+      $("btn-continue").classList.add("hidden");
+      showSentence();
+    }
+
+    function showSentence() {
+      placed = [];
+      feedback.textContent = "";
+      const s = deck[index];
+      english.textContent = s.en;
+
+      answer.innerHTML = "";
+      wordBank.innerHTML = "";
+
+      const scrambled = shuffle(s.es);
+      scrambled.forEach((word, i) => {
+        const btn = document.createElement("button");
+        btn.className = "px-4 py-2 rounded-lg border-2 border-gray-200 font-bold text-sm hover:border-primary/40 transition-colors cursor-pointer";
+        btn.textContent = word;
+        btn.dataset.word = word;
+        btn.dataset.idx = String(i);
+        btn.addEventListener("click", () => toggleWord(btn));
+        wordBank.appendChild(btn);
+      });
+
+      updateProgress();
+    }
+
+    function toggleWord(btn) {
+      const idx = btn.dataset.idx;
+      if (placed.includes(idx)) {
+        // Unselect — remove from placed, restore button style
+        placed = placed.filter(w => w !== idx);
+        btn.classList.remove("opacity-40", "border-primary/30");
+        btn.classList.add("hover:border-primary/40");
+      } else {
+        // Select — add to placed, dim button
+        placed.push(idx);
+        btn.classList.add("opacity-40", "border-primary/30");
+        btn.classList.remove("hover:border-primary/40");
+      }
+      // Update answer display
+      renderAnswer();
+      feedback.textContent = "";
+    }
+
+    function renderAnswer() {
+      answer.innerHTML = "";
+      const bankBtns = Array.from(wordBank.children);
+      placed.forEach(idx => {
+        const srcBtn = bankBtns.find(b => b.dataset.idx === idx);
+        if (!srcBtn) return;
+        const tag = document.createElement("span");
+        tag.className = "px-3 py-1 rounded-lg bg-primary/10 border border-primary text-primary font-bold text-sm cursor-pointer";
+        tag.textContent = srcBtn.dataset.word;
+        tag.dataset.idx = idx;
+        tag.addEventListener("click", () => {
+          // Clicking answer tag removes it
+          placed = placed.filter(w => w !== idx);
+          srcBtn.classList.remove("opacity-40", "border-primary/30");
+          srcBtn.classList.add("hover:border-primary/40");
+          renderAnswer();
+        });
+        answer.appendChild(tag);
+      });
+    }
+
+    function check() {
+      const s = deck[index];
+      const bankBtns = Array.from(wordBank.children);
+      const userAnswer = placed.map(idx => bankBtns.find(b => b.dataset.idx === idx)?.dataset.word).filter(Boolean);
+      const isCorrect = userAnswer.length === s.es.length && userAnswer.every((w, i) => w === s.es[i]);
+
+      if (isCorrect) {
+        correct++;
+        feedback.textContent = "Correct!";
+        feedback.className = "text-center text-sm mt-4 h-5 text-green-700 font-bold";
+        answer.querySelectorAll("span").forEach(b => b.classList.add("border-green-500", "bg-green-50"));
+        setTimeout(advance, 800);
+      } else {
+        feedback.textContent = "Not quite — correct: " + s.es.join(" ");
+        feedback.className = "text-center text-sm mt-4 h-5 text-red-600 font-bold";
+        answer.querySelectorAll("span").forEach(b => b.classList.add("border-red-400", "bg-red-50"));
+        $("btn-continue").classList.remove("hidden");
+      }
+    }
+
+    function advance() {
+      index++;
+      if (index >= deck.length) {
+        clear();
+        game.classList.add("hidden");
+        results.classList.remove("hidden");
+        $("result-score").textContent = correct + " out of " + deck.length + " correct!";
+        progressBar.style.width = "100%";
+      } else {
+        save();
+        showSentence();
+      }
+    }
+
+    function updateProgress() {
+      progressBar.style.width = (index / deck.length * 100) + "%";
+      progressText.textContent = index + " / " + deck.length;
+    }
+
+    $("btn-continue").addEventListener("click", () => { $("btn-continue").classList.add("hidden"); advance(); });
+    $("btn-check").addEventListener("click", check);
+    $("btn-clear").addEventListener("click", () => {
+      placed = [];
+      Array.from(wordBank.children).forEach(btn => {
+        btn.classList.remove("opacity-40", "border-primary/30");
+        btn.classList.add("hover:border-primary/40");
+      });
+      renderAnswer();
+      feedback.textContent = "";
+    });
+    $("btn-restart").addEventListener("click", () => { clear(); start(true); });
+    $("btn-restart-mid").addEventListener("click", () => { clear(); start(true); });
+    start();
+  </script>
+</Layout>

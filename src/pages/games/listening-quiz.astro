@@ -1,0 +1,222 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { categories } from "../../data/words";
+
+const allWords = categories.flatMap((c) => c.words);
+---
+
+<Layout title="Listening Quiz — Spanish with Elena Ramón">
+  <section class="max-w-2xl mx-auto px-6 py-12">
+    <div class="mb-8">
+      <a href="/games" class="text-sm text-primary hover:underline">&larr; All Games</a>
+    </div>
+    <h1 class="text-3xl md:text-4xl font-bold text-primary mb-2 text-center">Listening Quiz</h1>
+    <p class="text-gray-500 text-center mb-8">Listen to the Spanish word and pick the correct translation.</p>
+
+    <div class="flex items-center gap-4 mb-6">
+      <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div id="progress-bar" class="h-full bg-primary rounded-full transition-all duration-300" style="width: 0%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+      <span id="progress-text" class="text-sm text-gray-500">0 / 10</span>
+      <button id="btn-restart-mid" class="text-xs text-gray-500 hover:text-primary transition-colors cursor-pointer">Restart</button>
+    </div>
+
+    <div id="game">
+      <!-- No speech support warning -->
+      <div id="no-speech" class="text-center p-6 rounded-xl border border-red-300 bg-red-50 mb-6 hidden">
+        <p class="text-red-600 font-bold">Your browser doesn't support speech synthesis.</p>
+        <p class="text-red-600 text-sm">Try Chrome, Edge, or Safari.</p>
+      </div>
+
+      <div class="text-center mb-8">
+        <button id="btn-speak" class="w-24 h-24 rounded-full bg-primary text-white text-5xl hover:bg-blue-700 transition-colors shadow-lg mx-auto flex items-center justify-center cursor-pointer" aria-label="Listen to the word">
+          &#128266;
+        </button>
+        <div class="flex items-center justify-center gap-3 mt-3">
+          <p class="text-sm text-gray-500">Speed:</p>
+          <div class="flex gap-1" id="speed-btns">
+            <button data-speed="0.6" class="speed-btn px-2 py-0.5 rounded text-xs font-bold border border-gray-200 text-gray-500 hover:border-primary/40 transition-colors cursor-pointer">Slow</button>
+            <button data-speed="0.95" class="speed-btn px-2 py-0.5 rounded text-xs font-bold border border-primary bg-primary/10 text-primary transition-colors cursor-pointer">Normal</button>
+            <button data-speed="1.3" class="speed-btn px-2 py-0.5 rounded text-xs font-bold border border-gray-200 text-gray-500 hover:border-primary/40 transition-colors cursor-pointer">Fast</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="options" class="grid grid-cols-2 gap-3 mb-4"></div>
+      <p id="feedback" class="text-center text-sm h-5" aria-live="polite"></p>
+      <button id="btn-continue" class="mt-4 mx-auto block px-6 py-2 rounded-lg font-bold border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors hidden cursor-pointer">Continue</button>
+    </div>
+
+    <div id="results" class="text-center hidden">
+      <p class="text-5xl mb-4" aria-hidden="true">&#127911;</p>
+      <h2 class="text-2xl font-bold text-primary mb-2">Quiz Complete!</h2>
+      <p id="result-score" class="text-gray-600 mb-6"></p>
+      <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Play Again</button>
+    </div>
+  </section>
+
+  <script define:vars={{ allWords }}>
+    const words = allWords;
+    const ROUND_SIZE = 10;
+    let deck = [], index = 0, correct = 0, currentWord = null, answered = false;
+
+    const $ = (id) => document.getElementById(id);
+    const optionsEl = $("options"), feedback = $("feedback");
+    const game = $("game"), results = $("results");
+    const progressBar = $("progress-bar"), progressText = $("progress-text");
+
+    function shuffle(a) { const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
+
+    const GK = "game_listening_quiz", EXP = 3600000;
+    function save() { try { localStorage.setItem(GK, JSON.stringify({ deck, index, correct, _t: Date.now() })); } catch {} }
+    function load() { try { const r = localStorage.getItem(GK); if (!r) return null; const s = JSON.parse(r); if (Date.now() - s._t > EXP) { localStorage.removeItem(GK); return null; } return s; } catch { return null; } }
+    function clear() { try { localStorage.removeItem(GK); } catch {} }
+
+    const synth = window.speechSynthesis;
+    if (!synth) $("no-speech").classList.remove("hidden");
+
+    let bestVoice = null;
+
+    function pickBestVoice() {
+      const voices = synth.getVoices();
+      if (!voices.length) return;
+
+      // Score each Spanish voice — higher is better
+      const scored = voices
+        .filter(v => v.lang.startsWith("es"))
+        .map(v => {
+          let score = 0;
+          // Strongly prefer Mexican Spanish to match Elena
+          if (v.lang === "es-MX") score += 10;
+          // Prefer other Latin American variants over Spain
+          else if (v.lang.startsWith("es-") && v.lang !== "es-ES") score += 5;
+          // Premium/natural voices (naming conventions vary by OS)
+          const name = v.name.toLowerCase();
+          if (name.includes("premium") || name.includes("enhanced") || name.includes("natural")) score += 20;
+          // Apple high-quality voices
+          if (name.includes("paulina") || name.includes("juan")) score += 15;
+          // Google voices tend to be good
+          if (name.includes("google")) score += 8;
+          // Microsoft natural voices
+          if (name.includes("microsoft") && name.includes("online")) score += 8;
+          // Non-local (network) voices are usually higher quality
+          if (!v.localService) score += 3;
+          return { voice: v, score };
+        })
+        .sort((a, b) => b.score - a.score);
+
+      if (scored.length) bestVoice = scored[0].voice;
+    }
+
+    let speechRate = 0.95;
+
+    function speak(text) {
+      synth.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "es-MX";
+      u.rate = speechRate;
+      u.pitch = 1.25;
+      if (bestVoice) u.voice = bestVoice;
+      synth.speak(u);
+    }
+
+    // Voices load async in most browsers
+    pickBestVoice();
+    if (synth.onvoiceschanged !== undefined) {
+      synth.onvoiceschanged = pickBestVoice;
+    }
+
+    function start(fresh) {
+      const saved = !fresh && load();
+      if (saved) { deck = saved.deck; index = saved.index; correct = saved.correct; }
+      else { deck = shuffle(words).slice(0, ROUND_SIZE); index = 0; correct = 0; }
+      results.classList.add("hidden"); game.classList.remove("hidden");
+      $("btn-continue").classList.add("hidden");
+      showQuestion();
+    }
+
+    function showQuestion() {
+      answered = false;
+      currentWord = deck[index];
+      feedback.textContent = "";
+
+      // Auto-speak
+      setTimeout(() => speak(currentWord.es), 200);
+
+      // Generate options
+      const distractors = shuffle(words.filter(w => w.en !== currentWord.en)).slice(0, 3).map(w => w.en);
+      const opts = shuffle([currentWord.en, ...distractors]);
+
+      optionsEl.innerHTML = "";
+      opts.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "px-4 py-3 rounded-lg border-2 border-gray-200 font-bold hover:border-primary/40 transition-colors text-sm cursor-pointer";
+        btn.textContent = opt;
+        btn.addEventListener("click", () => handleAnswer(opt, btn));
+        optionsEl.appendChild(btn);
+      });
+
+      updateProgress();
+    }
+
+    function handleAnswer(answer, btn) {
+      if (answered) return;
+      answered = true;
+      const allBtns = optionsEl.querySelectorAll("button");
+
+      if (answer === currentWord.en) {
+        correct++;
+        btn.classList.add("border-green-500", "bg-green-50");
+        feedback.textContent = currentWord.es + " = " + currentWord.en;
+        feedback.className = "text-center text-sm h-5 text-green-700 font-bold";
+        setTimeout(advanceNext, 800);
+      } else {
+        btn.classList.add("border-red-400", "bg-red-50");
+        allBtns.forEach(b => { if (b.textContent === currentWord.en) b.classList.add("border-green-500", "bg-green-50"); });
+        feedback.textContent = currentWord.es + " = " + currentWord.en;
+        feedback.className = "text-center text-sm h-5 text-red-600 font-bold";
+        $("btn-continue").classList.remove("hidden");
+      }
+    }
+
+    function advanceNext() {
+      $("btn-continue").classList.add("hidden");
+      index++;
+      if (index >= deck.length) {
+        clear();
+        game.classList.add("hidden");
+        results.classList.remove("hidden");
+        $("result-score").textContent = correct + " out of " + deck.length + " correct!";
+        progressBar.style.width = "100%";
+      } else {
+        save();
+        showQuestion();
+      }
+    }
+
+    function updateProgress() {
+      progressBar.style.width = (index / deck.length * 100) + "%";
+      progressText.textContent = index + " / " + deck.length;
+    }
+
+    $("btn-speak").addEventListener("click", () => { if (currentWord) speak(currentWord.es); });
+
+    document.querySelectorAll(".speed-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        speechRate = parseFloat(btn.dataset.speed);
+        document.querySelectorAll(".speed-btn").forEach(b => {
+          b.classList.remove("border-primary", "bg-primary/10", "text-primary");
+          b.classList.add("border-gray-200", "text-gray-500");
+        });
+        btn.classList.remove("border-gray-200", "text-gray-500");
+        btn.classList.add("border-primary", "bg-primary/10", "text-primary");
+        if (currentWord) speak(currentWord.es);
+      });
+    });
+    $("btn-continue").addEventListener("click", advanceNext);
+    $("btn-restart").addEventListener("click", () => { clear(); start(true); });
+    $("btn-restart-mid").addEventListener("click", () => { clear(); start(true); });
+
+    start();
+  </script>
+</Layout>

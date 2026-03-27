@@ -1,0 +1,69 @@
+---
+const featured = {
+  name: "Šárka S.",
+  quote:
+    "I can confidently say that Elena is an excellent Spanish teacher. Her lessons are always well-prepared, engaging, and tailored to my level. She explains grammar clearly and makes even difficult topics easy to understand. What I appreciate the most is her patience and positive attitude\u2014she creates a comfortable environment where it\u2019s not stressful to make mistakes, which really helps with learning. The classes are dynamic and include a good balance of speaking, listening, and grammar practice. Thanks to her teaching style, I have improved my Spanish significantly and feel much more confident when using the language. I would highly recommend Elena to anyone looking for a professional, friendly, and effective Spanish teacher.",
+};
+
+const testimonials = [
+  {
+    name: "Miroslav Sedláček",
+    quote:
+      "Learning made fun again! Elena has guided me through my first Spanish words into basic conversations, all in six months. I will go further, and I recommend that everyone join me.",
+    linkedin: "https://www.linkedin.com/in/miroslavsedlacek/",
+  },
+  {
+    name: "Lea P.",
+    quote:
+      "Elena is an amazing teacher. She tailored the whole curriculum to my needs and the way I learn most effectively. The lessons are productive, fun, and actually make me look forward to studying. I\u2019ve made huge progress and can\u2019t recommend her enough!",
+  },
+  {
+    name: "Michal Sänger",
+    quote:
+      "The lessons were great, well-prepared, beneficial, and operationally adjusted for the next session. A huge difference compared to only learning with Duolingo.",
+    linkedin: "https://www.linkedin.com/in/michalsanger/",
+  },
+];
+---
+
+<section id="testimonials" class="max-w-4xl mx-auto px-6 py-16">
+  <h2 class="text-2xl md:text-3xl font-bold text-center text-primary mb-12">
+    What My Students Say
+  </h2>
+
+  <!-- Featured testimonial (full width) -->
+  <blockquote class="p-8 rounded-xl border-2 border-primary/20 bg-white mb-8">
+    <p class="text-gray-600 italic leading-relaxed mb-4 text-lg">
+      &ldquo;{featured.quote}&rdquo;
+    </p>
+    <cite class="text-sm font-bold not-italic text-gray-800">
+      — {featured.name}
+    </cite>
+  </blockquote>
+
+  <!-- Remaining testimonials (3 columns) -->
+  <div class="grid md:grid-cols-3 gap-6">
+    {
+      testimonials.map((t) => (
+        <blockquote class="p-6 rounded-xl border border-gray-200 flex flex-col">
+          <p class="text-gray-600 italic leading-relaxed mb-4 flex-1">
+            &ldquo;{t.quote}&rdquo;
+          </p>
+          <cite class="text-sm font-bold not-italic text-gray-800 flex items-center gap-2">
+            — {t.name}
+            {t.linkedin && (
+              <a
+                href={t.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-primary hover:underline font-normal text-xs"
+              >
+                LinkedIn
+              </a>
+            )}
+          </cite>
+        </blockquote>
+      ))
+    }
+  </div>
+</section>

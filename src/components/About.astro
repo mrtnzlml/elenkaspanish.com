@@ -1,0 +1,34 @@
+---
+import { Image } from "astro:assets";
+import elenaImg from "../assets/elena.jpg";
+---
+
+<section id="about" class="max-w-4xl mx-auto px-6 py-16">
+  <h2 class="text-2xl md:text-3xl font-bold text-center text-primary mb-10">
+    Meet Your Teacher
+  </h2>
+  <div class="flex flex-col md:flex-row gap-10 items-center">
+    <Image
+      src={elenaImg}
+      alt="Elena María Ramón Martínez"
+      width={256}
+      height={256}
+      class="w-64 h-64 object-cover rounded-2xl shadow-md"
+      loading="lazy"
+    />
+    <div class="space-y-4 text-gray-600 leading-relaxed">
+      <p>
+        Hi! I'm Elena María Ramón Martínez, a Mexican with a global spirit. I
+        split my time between Mexico and the Czech Republic, which has allowed me
+        to connect with students from diverse backgrounds and adapt my lessons to
+        different cultural contexts.
+      </p>
+      <p>
+        I hold a Bachelor's degree in Translation and a Master's in Upper
+        Secondary and Higher Education Teaching. Teaching Spanish as a foreign
+        language is my passion, and I've spent years helping students achieve
+        their language goals in a meaningful and enjoyable way.
+      </p>
+    </div>
+  </div>
+</section>

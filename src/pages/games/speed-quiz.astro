@@ -1,0 +1,143 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { categories } from "../../data/words";
+
+const allWords = categories.flatMap((c) => c.words);
+---
+
+<Layout title="Speed Quiz — Spanish with Elena Ramón">
+  <section class="max-w-2xl mx-auto px-6 py-12">
+    <div class="mb-8">
+      <a href="/games" class="text-sm text-primary hover:underline">&larr; All Games</a>
+    </div>
+    <h1 class="text-3xl md:text-4xl font-bold text-primary mb-2 text-center">Speed Quiz</h1>
+    <p class="text-gray-500 text-center mb-8">Translate as many words as you can in 60 seconds!</p>
+
+    <!-- Start screen -->
+    <div id="start-screen" class="text-center">
+      <p class="text-6xl mb-6" aria-hidden="true">&#9889;</p>
+      <button id="btn-start" class="px-8 py-4 rounded-lg font-bold bg-primary text-white text-lg hover:bg-blue-700 transition-colors cursor-pointer">Start!</button>
+    </div>
+
+    <!-- Quiz screen -->
+    <div id="quiz-screen" class="hidden">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-2">
+          <div class="w-32 h-3 bg-gray-200 rounded-full overflow-hidden">
+            <div id="timer-bar" class="h-full bg-primary rounded-full transition-all duration-1000" style="width: 100%"></div>
+          </div>
+          <span id="timer-text" class="text-sm font-bold text-gray-500">60s</span>
+        </div>
+        <p class="text-sm text-gray-500">Score: <span id="score" class="font-bold text-primary">0</span></p>
+      </div>
+
+      <div class="text-center mb-8">
+        <p class="text-xs uppercase tracking-wider text-gray-500 mb-2">Translate this Spanish word:</p>
+        <p id="quiz-word" class="text-3xl font-bold text-primary"></p>
+      </div>
+
+      <div id="options" class="grid grid-cols-2 gap-3"></div>
+      <p id="feedback" class="text-center text-sm mt-4 h-5" aria-live="polite"></p>
+    </div>
+
+    <!-- Results screen -->
+    <div id="result-screen" class="text-center hidden">
+      <p class="text-5xl mb-4" aria-hidden="true">&#127942;</p>
+      <h2 class="text-2xl font-bold text-primary mb-2">Time's Up!</h2>
+      <p id="final-score" class="text-gray-600 mb-1"></p>
+      <p id="accuracy" class="text-sm text-gray-500 mb-6"></p>
+      <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Play Again</button>
+    </div>
+  </section>
+
+  <script define:vars={{ allWords }}>
+    const words = allWords;
+    let score = 0, total = 0, timeLeft = 60, timer = null, currentWord = null;
+
+    const GK = "game_speed_quiz", EXP = 3600000;
+    function loadHigh() { try { const r = localStorage.getItem(GK); if (!r) return 0; const s = JSON.parse(r); if (Date.now() - s._t > EXP) { localStorage.removeItem(GK); return 0; } return s.high || 0; } catch { return 0; } }
+    function saveHigh(s) { try { const prev = loadHigh(); if (s > prev) localStorage.setItem(GK, JSON.stringify({ high: s, _t: Date.now() })); } catch {} }
+
+    const $ = (id) => document.getElementById(id);
+    const startScreen = $("start-screen"), quizScreen = $("quiz-screen"), resultScreen = $("result-screen");
+    const timerBar = $("timer-bar"), timerText = $("timer-text"), scoreEl = $("score");
+    const quizWord = $("quiz-word"), options = $("options"), feedback = $("feedback");
+
+    function shuffle(a) { const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
+
+    function startGame() {
+      score = 0; total = 0; timeLeft = 60;
+      startScreen.classList.add("hidden");
+      resultScreen.classList.add("hidden");
+      quizScreen.classList.remove("hidden");
+      scoreEl.textContent = "0";
+      feedback.textContent = "";
+      nextQuestion();
+      timer = setInterval(() => {
+        timeLeft--;
+        timerText.textContent = timeLeft + "s";
+        timerBar.style.width = (timeLeft / 60 * 100) + "%";
+        if (timeLeft <= 10) timerBar.classList.replace("bg-primary", "bg-red-500");
+        if (timeLeft <= 0) endGame();
+      }, 1000);
+    }
+
+    function nextQuestion() {
+      currentWord = words[Math.floor(Math.random() * words.length)];
+      quizWord.textContent = currentWord.es;
+
+      // Generate 4 options (1 correct + 3 distractors)
+      const distractors = shuffle(words.filter(w => w.en !== currentWord.en)).slice(0, 3).map(w => w.en);
+      const opts = shuffle([currentWord.en, ...distractors]);
+
+      options.innerHTML = "";
+      opts.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "px-4 py-3 rounded-lg border-2 border-gray-200 font-bold hover:border-primary/40 transition-colors text-sm cursor-pointer";
+        btn.textContent = opt;
+        btn.addEventListener("click", () => handleAnswer(opt, btn));
+        options.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(answer, btn) {
+      total++;
+      const allBtns = options.querySelectorAll("button");
+      allBtns.forEach(b => b.style.pointerEvents = "none");
+
+      if (answer === currentWord.en) {
+        score++;
+        scoreEl.textContent = String(score);
+        btn.classList.add("border-green-500", "bg-green-50");
+        feedback.textContent = "Correct!";
+        feedback.className = "text-center text-sm mt-4 h-5 text-green-700 font-bold";
+      } else {
+        btn.classList.add("border-red-400", "bg-red-50");
+        // Highlight correct
+        allBtns.forEach(b => { if(b.textContent === currentWord.en) b.classList.add("border-green-500", "bg-green-50"); });
+        feedback.textContent = "It was: " + currentWord.en;
+        feedback.className = "text-center text-sm mt-4 h-5 text-red-600 font-bold";
+      }
+
+      setTimeout(() => {
+        feedback.textContent = "";
+        nextQuestion();
+      }, 600);
+    }
+
+    function endGame() {
+      clearInterval(timer);
+      quizScreen.classList.add("hidden");
+      resultScreen.classList.remove("hidden");
+      $("final-score").textContent = score + " correct answers in 60 seconds!";
+      saveHigh(score);
+      const high = loadHigh();
+      if (high > 0) $("final-score").textContent += " (Best: " + high + ")";
+      $("accuracy").textContent = total > 0 ? "Accuracy: " + Math.round(score/total*100) + "% (" + score + "/" + total + ")" : "";
+      timerBar.classList.replace("bg-red-500", "bg-primary");
+    }
+
+    $("btn-start").addEventListener("click", startGame);
+    $("btn-restart").addEventListener("click", startGame);
+  </script>
+</Layout>

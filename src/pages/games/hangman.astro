@@ -1,0 +1,178 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { categories } from "../../data/words";
+
+const allWords = categories.flatMap((c) => c.words).filter((w) => !w.es.includes(" ") && w.es.length >= 3);
+---
+
+<Layout title="Hangman — Spanish with Elena Ramón">
+  <section class="max-w-2xl mx-auto px-6 py-12">
+    <div class="mb-8">
+      <a href="/games" class="text-sm text-primary hover:underline">&larr; All Games</a>
+    </div>
+    <h1 class="text-3xl md:text-4xl font-bold text-primary mb-2 text-center">Hangman</h1>
+    <p class="text-gray-500 text-center mb-8">Guess the Spanish word from the English clue!</p>
+
+    <div id="game">
+      <div class="text-center mb-6">
+        <p class="text-xs uppercase tracking-wider text-gray-500 mb-2">English clue</p>
+        <p id="clue" class="text-xl font-bold text-gray-800"></p>
+      </div>
+
+      <!-- Hangman figure -->
+      <div class="flex justify-center mb-6">
+        <svg id="hangman-svg" width="160" height="160" viewBox="0 0 160 160" class="text-gray-300" role="img" aria-label="Hangman figure">
+          <!-- Gallows -->
+          <line x1="20" y1="150" x2="80" y2="150" stroke="currentColor" stroke-width="3"/>
+          <line x1="50" y1="150" x2="50" y2="20" stroke="currentColor" stroke-width="3"/>
+          <line x1="50" y1="20" x2="110" y2="20" stroke="currentColor" stroke-width="3"/>
+          <line x1="110" y1="20" x2="110" y2="40" stroke="currentColor" stroke-width="3"/>
+          <!-- Body parts (hidden initially) -->
+          <circle id="hm-head" cx="110" cy="52" r="12" fill="none" stroke="#004de5" stroke-width="3" class="invisible"/>
+          <line id="hm-body" x1="110" y1="64" x2="110" y2="100" stroke="#004de5" stroke-width="3" class="invisible"/>
+          <line id="hm-larm" x1="110" y1="75" x2="90" y2="90" stroke="#004de5" stroke-width="3" class="invisible"/>
+          <line id="hm-rarm" x1="110" y1="75" x2="130" y2="90" stroke="#004de5" stroke-width="3" class="invisible"/>
+          <line id="hm-lleg" x1="110" y1="100" x2="90" y2="120" stroke="#004de5" stroke-width="3" class="invisible"/>
+          <line id="hm-rleg" x1="110" y1="100" x2="130" y2="120" stroke="#004de5" stroke-width="3" class="invisible"/>
+        </svg>
+      </div>
+
+      <!-- Word display -->
+      <div id="word-display" class="flex gap-2 justify-center mb-8 text-2xl font-bold tracking-widest"></div>
+
+      <!-- Keyboard -->
+      <div id="keyboard" class="flex flex-wrap gap-1.5 justify-center mb-6"></div>
+
+      <p id="feedback" class="text-center text-sm h-5 font-bold" aria-live="polite"></p>
+    </div>
+
+    <!-- Stats -->
+    <div class="flex justify-between items-center mt-4">
+      <p id="stats" class="text-sm text-gray-500" role="status">Wins: 0 &middot; Losses: 0</p>
+      <button id="btn-new" class="text-sm text-primary font-bold hover:underline cursor-pointer">New Word</button>
+    </div>
+  </section>
+
+  <script define:vars={{ allWords }}>
+    const words = allWords;
+    const bodyParts = ["hm-head", "hm-body", "hm-larm", "hm-rarm", "hm-lleg", "hm-rleg"];
+    const ALPHABET = "abcdefghijklmnñopqrstuvwxyz".split("");
+    // Special characters that can appear in Spanish words
+    const ACCENTED = { "á": "a", "é": "e", "í": "i", "ó": "o", "ú": "u", "ü": "u", "ñ": "ñ" };
+
+    let currentWord = "", normalizedWord = "", guessed = new Set(), wrongCount = 0, wins = 0, losses = 0, gameOver = false;
+
+    const GK = "game_hangman_stats", EXP = 3600000;
+    function loadStats() { try { const r = localStorage.getItem(GK); if (!r) return null; const s = JSON.parse(r); if (Date.now() - s._t > EXP) { localStorage.removeItem(GK); return { w: 0, l: 0 }; } return s; } catch { return { w: 0, l: 0 }; } }
+    function saveStats() { try { localStorage.setItem(GK, JSON.stringify({ w: wins, l: losses, _t: Date.now() })); } catch {} }
+
+    const $ = (id) => document.getElementById(id);
+    const clue = $("clue"), wordDisplay = $("word-display"), keyboard = $("keyboard"), feedback = $("feedback");
+
+    const initStats = loadStats();
+    if (initStats) { wins = initStats.w; losses = initStats.l; }
+
+    function normalize(char) {
+      const lower = char.toLowerCase();
+      return ACCENTED[lower] || lower;
+    }
+
+    function newGame() {
+      const w = words[Math.floor(Math.random() * words.length)];
+      // Strip leading articles
+      currentWord = w.es.replace(/^(El |La |Los |Las )/i, "").toLowerCase();
+      normalizedWord = [...currentWord].map(normalize).join("");
+      clue.textContent = w.en;
+      guessed = new Set(); wrongCount = 0; gameOver = false;
+      feedback.textContent = "";
+
+      // Reset hangman
+      bodyParts.forEach(id => $(id).classList.add("invisible"));
+
+      renderWord();
+      renderKeyboard();
+    }
+
+    function renderWord() {
+      wordDisplay.innerHTML = "";
+      [...currentWord].forEach((ch) => {
+        const span = document.createElement("span");
+        if (ch === " " || ch === "-") {
+          span.textContent = ch;
+          span.className = "w-4";
+        } else {
+          const n = normalize(ch);
+          span.textContent = guessed.has(n) ? ch : "_";
+          span.className = guessed.has(n) ? "text-primary" : "text-gray-500";
+        }
+        wordDisplay.appendChild(span);
+      });
+    }
+
+    function renderKeyboard() {
+      keyboard.innerHTML = "";
+      ALPHABET.forEach(letter => {
+        const btn = document.createElement("button");
+        btn.textContent = letter;
+        btn.className = "w-9 h-9 rounded-lg text-sm font-bold transition-colors ";
+        if (guessed.has(letter)) {
+          const isInWord = normalizedWord.includes(letter);
+          btn.className += isInWord ? "bg-green-100 text-green-700 border border-green-300" : "bg-gray-100 text-gray-500 border border-gray-200";
+          btn.disabled = true;
+        } else {
+          btn.className += "bg-white border-2 border-gray-200 hover:border-primary/40 cursor-pointer";
+          btn.addEventListener("click", () => guess(letter));
+        }
+        keyboard.appendChild(btn);
+      });
+    }
+
+    function guess(letter) {
+      if (gameOver || guessed.has(letter)) return;
+      guessed.add(letter);
+
+      if (normalizedWord.includes(letter)) {
+        renderWord();
+        renderKeyboard();
+        // Check win
+        const allRevealed = [...currentWord].every(ch => ch === " " || ch === "-" || guessed.has(normalize(ch)));
+        if (allRevealed) {
+          wins++;
+          gameOver = true;
+          feedback.textContent = "You got it! \uD83C\uDF89";
+          feedback.className = "text-center text-sm h-5 font-bold text-green-700";
+          updateStats();
+          saveStats();
+        }
+      } else {
+        $(bodyParts[wrongCount]).classList.remove("invisible");
+        wrongCount++;
+        renderKeyboard();
+        if (wrongCount >= 6) {
+          losses++;
+          gameOver = true;
+          // Reveal word
+          [...currentWord].forEach((_, i) => guessed.add(normalize(currentWord[i])));
+          renderWord();
+          feedback.textContent = "The word was: " + currentWord;
+          feedback.className = "text-center text-sm h-5 font-bold text-red-600";
+          updateStats();
+          saveStats();
+        }
+      }
+    }
+
+    function updateStats() {
+      $("stats").textContent = "Wins: " + wins + " \u00B7 Losses: " + losses;
+    }
+
+    // Keyboard support
+    document.addEventListener("keydown", (e) => {
+      const key = e.key.toLowerCase();
+      if (ALPHABET.includes(key) && !gameOver) guess(key);
+    });
+
+    $("btn-new").addEventListener("click", newGame);
+    newGame();
+  </script>
+</Layout>
