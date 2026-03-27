@@ -1,21 +1,25 @@
 ---
 const benefits = [
   {
+    icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />',
     title: "Tailor-Made Classes",
     description:
       "Forget generic methods. With me, every lesson is designed exclusively for you. Do you need to prepare for a trip? Do you need to practice your speaking skills? Or do you simply dream of understanding your favorite shows without subtitles? Together, we'll create the perfect plan for you to achieve your goals!",
   },
   {
+    icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />',
     title: "Learn from a Native Speaker",
     description:
       "Not only is Spanish my first language, but I also thoroughly understand its complexities and, most importantly, I know how to teach them to you in an effective and fun way.",
   },
   {
+    icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />',
     title: "Flexibility and Adaptability",
     description:
       "I understand that every student is unique. My classes adapt to your pace, your interests, and your learning style. Your progress is my priority!",
   },
   {
+    icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M12.75 3.03v.568c0 .334.148.65.405.864l1.068.89c.442.369.535 1.01.216 1.49l-.51.766a2.25 2.25 0 01-1.161.886l-.143.048a1.107 1.107 0 00-.57 1.664c.369.555.169 1.307-.427 1.605L9 13.125l.423 1.059a.956.956 0 01-1.652.928l-.679-.906a1.125 1.125 0 00-1.906.172L4.5 15.75l-.612.153M12.75 3.031a9 9 0 00-8.862 12.872M12.75 3.03a9 9 0 016.69 14.036m0 0l-.177-.529A2.25 2.25 0 0017.128 15H16.5l-.324-.324a1.453 1.453 0 00-2.328.377l-.036.073a1.586 1.586 0 01-.982.816l-.99.282c-.55.157-.894.692-.8 1.258l.108.646c.034.2.084.395.15.584m0 0a8.976 8.976 0 01-4.428 1.036" />',
     title: "Online Classes Wherever You Are",
     description:
       "All you need is an internet connection and a desire to learn.",
@@ -31,7 +35,12 @@ const benefits = [
     <div class="grid md:grid-cols-2 gap-8">
       {
         benefits.map((b) => (
-          <div class="p-6 rounded-xl border border-gray-200 hover:shadow-md transition-shadow flex flex-col">
+          <div class="p-6 rounded-xl border border-gray-200 hover:shadow-md transition-shadow flex flex-col group">
+            <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary/15 transition-colors">
+              <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                <Fragment set:html={b.icon} />
+              </svg>
+            </div>
             <h3 class="text-lg font-bold mb-3">{b.title}</h3>
             <p class="text-gray-600 leading-relaxed flex-1">{b.description}</p>
           </div>

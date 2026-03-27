@@ -7,75 +7,94 @@ const games = [
     description: "Flip cards to test your vocabulary. Track what you know and what needs practice.",
     href: "/games/flashcards",
     icon: "&#127183;",
+    color: "bg-blue-50",
   },
   {
     title: "Memory Match",
     description: "Find matching Spanish-English pairs in a grid of face-down cards.",
     href: "/games/memory-match",
     icon: "&#129504;",
+    color: "bg-purple-50",
   },
   {
     title: "Speed Quiz",
     description: "How many words can you translate in 60 seconds? Race the clock!",
     href: "/games/speed-quiz",
     icon: "&#9889;",
+    color: "bg-amber-50",
   },
   {
     title: "Sentence Builder",
     description: "Arrange scrambled Spanish words into the correct sentence order.",
     href: "/games/sentence-builder",
     icon: "&#128221;",
+    color: "bg-green-50",
   },
   {
     title: "Verb Conjugation",
     description: "Master Spanish verb forms. Given a verb and pronoun, type the conjugation.",
     href: "/games/verb-conjugation",
     icon: "&#9999;&#65039;",
+    color: "bg-rose-50",
   },
   {
     title: "Listening Quiz",
     description: "Hear a Spanish word spoken aloud, then pick the correct English translation.",
     href: "/games/listening-quiz",
     icon: "&#127911;",
+    color: "bg-cyan-50",
   },
   {
     title: "Hangman",
     description: "Guess the Spanish word letter by letter from an English clue.",
     href: "/games/hangman",
     icon: "&#128128;",
+    color: "bg-gray-50",
   },
   {
     title: "Fill the Gap",
     description: "Pick the correct word to complete a Spanish sentence. Tests grammar in context.",
     href: "/games/fill-the-gap",
     icon: "&#128300;",
+    color: "bg-indigo-50",
   },
   {
     title: "Accent Fixer",
     description: "Accents are missing! Click the right letters to add á, é, í, ó, ú, or ñ.",
     href: "/games/accent-fixer",
     icon: "&#9996;",
+    color: "bg-orange-50",
   },
 ];
 ---
 
 <Layout title="Games — Spanish with Elena Ramón">
   <section class="max-w-4xl mx-auto px-6 py-12">
-    <h1 class="text-3xl md:text-4xl font-bold text-primary mb-2 text-center">
-      Practice Games
-    </h1>
-    <p class="text-gray-500 text-center mb-10">
-      Fun ways to build your Spanish vocabulary, grammar, and listening skills.
-    </p>
+    <div class="text-center mb-10">
+      <div class="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
+        <svg class="w-10 h-10 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 11h4M8 9v4M15 12h.01M18 10h.01" />
+          <rect x="2" y="6" width="20" height="12" rx="4" />
+        </svg>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold text-primary mb-2">
+        Practice Games
+      </h1>
+      <p class="text-gray-500">
+        Fun ways to build your Spanish vocabulary, grammar, and listening skills.
+      </p>
+    </div>
 
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {
         games.map((game) => (
           <a
             href={game.href}
-            class="group p-6 rounded-xl border border-gray-200 hover:border-primary/40 hover:shadow-lg transition-all flex flex-col"
+            class="group p-6 rounded-xl border border-gray-200 bg-white hover:border-primary/40 hover:shadow-lg transition-all flex flex-col"
           >
-            <span class="text-4xl mb-4" aria-hidden="true" set:html={game.icon} />
+            <div class:list={["w-12 h-12 rounded-xl flex items-center justify-center mb-4 text-2xl group-hover:scale-110 transition-transform", game.color]}>
+              <span aria-hidden="true" set:html={game.icon} />
+            </div>
             <h2 class="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
               {game.title}
             </h2>

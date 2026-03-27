@@ -1,8 +1,19 @@
 # elenkaspanish.com
 
-Personal website for Spanish with Elena Ramón — online Spanish lessons.
+Website for Spanish with Elena Ramón — personalized online Spanish lessons.
 
 Built with [Astro](https://astro.build) + [Tailwind CSS](https://tailwindcss.com), deployed on [Cloudflare Pages](https://pages.cloudflare.com).
+
+## Pages
+
+- **Homepage** — hero, how it works, pricing, testimonials, contact
+- **FAQ** — frequently asked questions
+- **Questionnaire** — embedded Google Form for student intake
+- **Whiteboard** — collaborative Excalidraw canvas for lessons
+- **Games** — 9 interactive Spanish learning games:
+  - Flashcards, Memory Match, Speed Quiz, Sentence Builder
+  - Verb Conjugation, Listening Quiz, Hangman
+  - Fill the Gap, Accent Fixer
 
 ## Development
 
@@ -12,6 +23,8 @@ npm run dev       # http://localhost:4321
 npm run build     # production build → ./dist/
 ```
 
+Requires Node.js >= 22.
+
 ## Deployment
 
 Connected to Cloudflare Pages. Pushing to `main` triggers a deploy automatically.
@@ -19,11 +32,4 @@ Connected to Cloudflare Pages. Pushing to `main` triggers a deploy automatically
 **Cloudflare Pages settings:**
 - Build command: `npm run build`
 - Build output directory: `dist`
-- Node.js version: 20
-
-## Setup checklist
-
-- [ ] Add `elena.jpg` photo to `public/`
-- [ ] Create a Google Form with the questionnaire fields, then replace the placeholder URL in `src/pages/questionnaire.astro`
-- [ ] Connect the GitHub repo to Cloudflare Pages
-- [ ] Add custom domain `elenkaspanish.com` in Cloudflare Pages
+- Environment variable: `NODE_VERSION` = `22`
