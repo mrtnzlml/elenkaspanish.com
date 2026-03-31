@@ -23,6 +23,11 @@ const testimonials = [
       "The lessons were great, well-prepared, beneficial, and operationally adjusted for the next session. A huge difference compared to only learning with Duolingo.",
     linkedin: "https://www.linkedin.com/in/michalsanger/",
   },
+  {
+    name: "Tereza Koutníková",
+    quote:
+      "Great teacher who creates a friendly and supportive atmosphere. The explanations are clear and easy to understand and the lessons are always adapted to my needs. Her approach makes Spanish enjoyable and fun.",
+  },
 ];
 ---
 
@@ -45,7 +50,7 @@ const testimonials = [
   </blockquote>
 
   <!-- Remaining testimonials (3 columns) -->
-  <div class="grid md:grid-cols-3 gap-6">
+  <div class="grid md:grid-cols-2 gap-6">
     {
       testimonials.map((t) => (
         <blockquote class="relative p-6 rounded-xl border border-gray-200 flex flex-col overflow-hidden">
