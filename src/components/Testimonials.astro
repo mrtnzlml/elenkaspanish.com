@@ -32,12 +32,21 @@ const testimonials = [
 ---
 
 <section id="testimonials" class="max-w-4xl mx-auto px-6 py-16">
-  <h2 class="text-2xl md:text-3xl font-bold text-center text-primary mb-12">
+  <h2 class="text-2xl md:text-3xl font-bold text-center text-primary mb-3">
     What My Students Say
   </h2>
+  <p class="flex items-center justify-center gap-3 mb-3">
+    <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
+    <span class="text-base italic text-primary/50">Lo que dicen mis alumnos</span>
+    <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
+  </p>
+  <div class="flex items-center justify-center gap-2 mb-12">
+    <span class="text-primary text-lg tracking-wide" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+    <span class="text-sm text-gray-500">Loved by 50+ students</span>
+  </div>
 
   <!-- Featured testimonial (full width) -->
-  <blockquote class="relative p-8 rounded-xl border-2 border-primary/20 bg-white mb-8 overflow-hidden">
+  <blockquote class="relative p-8 rounded-xl border-2 border-primary/20 bg-primary/[0.02] shadow-sm mb-8 overflow-hidden">
     <svg class="absolute top-4 left-4 w-16 h-16 text-primary/[0.06]" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
       <path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z" />
     </svg>
@@ -53,7 +62,7 @@ const testimonials = [
   <div class="grid md:grid-cols-2 gap-6">
     {
       testimonials.map((t) => (
-        <blockquote class="relative p-6 rounded-xl border border-gray-200 flex flex-col overflow-hidden">
+        <blockquote class="relative p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
           <svg class="absolute top-3 left-3 w-10 h-10 text-primary/[0.05]" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
             <path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z" />
           </svg>

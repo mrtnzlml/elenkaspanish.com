@@ -6,14 +6,11 @@ Built with [Astro](https://astro.build) + [Tailwind CSS](https://tailwindcss.com
 
 ## Pages
 
-- **Homepage** — hero, how it works, pricing, testimonials, contact
+- **Homepage** — hero, how it works, pricing, testimonials, contact, company teaser
 - **FAQ** — frequently asked questions
+- **For Companies** — corporate Spanish lesson packages
 - **Questionnaire** — embedded Google Form for student intake
-- **Whiteboard** — collaborative Excalidraw canvas for lessons
-- **Games** — 9 interactive Spanish learning games:
-  - Flashcards, Memory Match, Speed Quiz, Sentence Builder
-  - Verb Conjugation, Listening Quiz, Hangman
-  - Fill the Gap, Accent Fixer
+- **Practice** — 9 interactive Spanish learning games
 
 ## Development
 

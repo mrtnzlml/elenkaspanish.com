@@ -1,0 +1,76 @@
+---
+const faqs = [
+  {
+    question: "What do I need to take the classes?",
+    answer:
+      "You only need a stable internet connection, a device with a camera and microphone (computer, tablet, or smartphone), and a strong desire to learn. Classes are held via video call, using <strong>Google Meet</strong>.",
+  },
+  {
+    question: "Can I cancel or reschedule a class?",
+    answer:
+      "Yes, of course. I just ask that you notify me at least <strong>24 hours in advance</strong> to reschedule at no extra cost. Cancellations with less than 24 hours' notice are non-refundable.",
+  },
+  {
+    question: "Do you offer classes for children?",
+    answer: "Currently, I specialize in teaching adults.",
+  },
+  {
+    question: "How much do lessons cost?",
+    answer:
+      "Individual lessons are <strong>24 USD</strong> (21 EUR / 500 CZK), duo lessons <strong>18 USD per student</strong>, and small group (3-4) <strong>14 USD per student</strong>. All are 55 minutes. You can try risk-free — pay for just one lesson first, then decide if you want the full package. See the <a href='#pricing' class='text-primary hover:underline font-bold'>Pricing section</a> for details.",
+  },
+  {
+    question: "How is payment made?",
+    answer:
+      "Payment is made <strong>in advance</strong> for a package of <strong>4 classes</strong>. I accept bank transfers or Revolut payments, depending on your country. Once we schedule your classes, I will send you the payment details and instructions.",
+  },
+];
+---
+
+<section id="faq" class="bg-white py-16">
+  <div class="max-w-4xl mx-auto px-6">
+    <h2 class="text-2xl md:text-3xl font-bold text-center text-primary mb-3">
+      Frequently Asked Questions
+    </h2>
+    <p class="flex items-center justify-center gap-3 mb-10">
+      <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
+      <span class="text-base italic text-primary/50">Preguntas frecuentes</span>
+      <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
+    </p>
+    <div class="divide-y divide-gray-200 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+      {
+        faqs.map((faq, i) => (
+          <div class="bg-white">
+            <button
+              class="faq-toggle w-full flex items-center justify-between gap-4 px-6 py-5 text-left cursor-pointer hover:bg-gray-50 transition-colors"
+              aria-expanded="false"
+              aria-controls={`faq-answer-${i}`}
+            >
+              <span class="font-bold">{faq.question}</span>
+              <svg class="faq-chevron w-5 h-5 text-gray-500 shrink-0 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+              </svg>
+            </button>
+            <div id={`faq-answer-${i}`} class="faq-answer hidden">
+              <p class="px-6 pb-5 text-gray-600 leading-relaxed text-sm" set:html={faq.answer} />
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll(".faq-toggle").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const expanded = btn.getAttribute("aria-expanded") === "true";
+      const answer = btn.nextElementSibling as HTMLElement;
+      const chevron = btn.querySelector(".faq-chevron") as HTMLElement;
+
+      btn.setAttribute("aria-expanded", String(!expanded));
+      answer.classList.toggle("hidden");
+      chevron.style.transform = expanded ? "" : "rotate(180deg)";
+    });
+  });
+</script>

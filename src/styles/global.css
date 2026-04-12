@@ -23,3 +23,26 @@
   src: url("https://fonts.gstatic.com/s/manrope/v15/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk4GE-_F87jxeN7B.woff2")
     format("woff2");
 }
+
+/* Offset anchor scroll for sticky nav */
+[id] {
+  scroll-margin-top: 5rem;
+}
+
+/* Global focus ring for keyboard navigation */
+:focus-visible {
+  outline: 2px solid #004de5;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Scroll-triggered fade-in */
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.fade-in-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}

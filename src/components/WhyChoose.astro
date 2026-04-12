@@ -22,27 +22,46 @@ const benefits = [
     icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M12.75 3.03v.568c0 .334.148.65.405.864l1.068.89c.442.369.535 1.01.216 1.49l-.51.766a2.25 2.25 0 01-1.161.886l-.143.048a1.107 1.107 0 00-.57 1.664c.369.555.169 1.307-.427 1.605L9 13.125l.423 1.059a.956.956 0 01-1.652.928l-.679-.906a1.125 1.125 0 00-1.906.172L4.5 15.75l-.612.153M12.75 3.031a9 9 0 00-8.862 12.872M12.75 3.03a9 9 0 016.69 14.036m0 0l-.177-.529A2.25 2.25 0 0017.128 15H16.5l-.324-.324a1.453 1.453 0 00-2.328.377l-.036.073a1.586 1.586 0 01-.982.816l-.99.282c-.55.157-.894.692-.8 1.258l.108.646c.034.2.084.395.15.584m0 0a8.976 8.976 0 01-4.428 1.036" />',
     title: "Online Classes Wherever You Are",
     description:
-      "All you need is an internet connection and a desire to learn.",
+      "All you need is an internet connection and a desire to learn. Classes happen via Google Meet — from your home, office, or anywhere you travel.",
   },
 ];
 ---
 
 <section id="why-choose" class="bg-white py-16">
   <div class="max-w-4xl mx-auto px-6">
-    <h2 class="text-2xl md:text-3xl font-bold text-center text-primary mb-12">
-      Why Choose Spanish with Elena Ramón
+    <h2 class="text-2xl md:text-3xl font-bold text-center text-primary mb-3">
+      Why Choose Spanish with Elena Ram&oacute;n
     </h2>
-    <div class="grid md:grid-cols-2 gap-8">
+    <p class="flex items-center justify-center gap-3 mb-12">
+      <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
+      <span class="text-base italic text-primary/50">&#191;Por qu&eacute; elegirme?</span>
+      <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
+    </p>
+    <div class="grid md:grid-cols-3 gap-8">
       {
-        benefits.map((b) => (
-          <div class="p-6 rounded-xl border border-gray-200 hover:shadow-md transition-shadow flex flex-col group">
-            <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary/15 transition-colors">
-              <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                <Fragment set:html={b.icon} />
-              </svg>
+        benefits.map((b, i) => (
+          <div
+            class:list={[
+              "p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group",
+              i === 0 ? "md:col-span-3" : "",
+            ]}
+          >
+            <div class:list={[
+              i === 0 ? "flex flex-col md:flex-row md:items-start gap-4 md:gap-6" : "flex flex-col",
+            ]}>
+              <div class:list={[
+                "w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors",
+                i === 0 ? "mb-4 md:mb-0" : "mb-4",
+              ]}>
+                <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                  <Fragment set:html={b.icon} />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold mb-2">{b.title}</h3>
+                <p class="text-gray-600 leading-relaxed">{b.description}</p>
+              </div>
             </div>
-            <h3 class="text-lg font-bold mb-3">{b.title}</h3>
-            <p class="text-gray-600 leading-relaxed flex-1">{b.description}</p>
           </div>
         ))
       }

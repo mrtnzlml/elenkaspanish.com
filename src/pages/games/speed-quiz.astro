@@ -6,7 +6,7 @@ const allWords = categories.flatMap((c) => c.words);
 ---
 
 <Layout title="Speed Quiz — Spanish with Elena Ramón">
-  <section class="max-w-2xl mx-auto px-6 py-12">
+  <section class="max-w-2xl mx-auto px-6 py-16">
     <div class="mb-8">
       <a href="/games" class="text-sm text-primary hover:underline">&larr; All Games</a>
     </div>
@@ -23,7 +23,7 @@ const allWords = categories.flatMap((c) => c.words);
     <div id="quiz-screen" class="hidden">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-2">
-          <div class="w-32 h-3 bg-gray-200 rounded-full overflow-hidden">
+          <div class="flex-1 max-w-32 h-3 bg-gray-200 rounded-full overflow-hidden">
             <div id="timer-bar" class="h-full bg-primary rounded-full transition-all duration-1000" style="width: 100%"></div>
           </div>
           <span id="timer-text" class="text-sm font-bold text-gray-500">60s</span>
@@ -47,6 +47,10 @@ const allWords = categories.flatMap((c) => c.words);
       <p id="final-score" class="text-gray-600 mb-1"></p>
       <p id="accuracy" class="text-sm text-gray-500 mb-6"></p>
       <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Play Again</button>
+      <div class="mt-8 pt-6 border-t border-gray-200">
+        <p class="text-sm text-gray-500 mb-3">Want to learn faster with a personal teacher?</p>
+        <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW" target="_blank" rel="noopener noreferrer" class="text-primary font-bold hover:underline text-sm">Book a free intro call with Elena</a>
+      </div>
     </div>
   </section>
 
@@ -93,7 +97,7 @@ const allWords = categories.flatMap((c) => c.words);
       options.innerHTML = "";
       opts.forEach(opt => {
         const btn = document.createElement("button");
-        btn.className = "px-4 py-3 rounded-lg border-2 border-gray-200 font-bold hover:border-primary/40 transition-colors text-sm cursor-pointer";
+        btn.className = "px-4 py-4 rounded-lg border-2 border-gray-200 font-bold hover:border-primary/40 transition-colors text-sm cursor-pointer";
         btn.textContent = opt;
         btn.addEventListener("click", () => handleAnswer(opt, btn));
         options.appendChild(btn);

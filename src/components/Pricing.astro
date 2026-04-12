@@ -1,39 +1,145 @@
 ---
 const bookingUrl =
   "https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW";
+
+const checkIcon = '<svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>';
+
+const plans = [
+  {
+    name: "Individual",
+    subtitle: "1-on-1 with Elena",
+    perLesson: "24",
+    perLessonEur: "21",
+    perLessonCzk: "500",
+    package: "96",
+    packageEur: "84",
+    packageCzk: "2,000",
+    features: [
+      "Full attention on your goals",
+      "Custom materials and homework",
+      "Flexible scheduling",
+    ],
+    highlighted: true,
+    badge: "Most popular",
+    group: false,
+  },
+  {
+    name: "Duo",
+    subtitle: "Learn with a friend",
+    perLesson: "18",
+    perLessonEur: "16",
+    perLessonCzk: "375",
+    package: "72",
+    packageEur: "64",
+    packageCzk: "1,500",
+    features: [
+      "Practice conversations together",
+      "Custom materials and homework",
+      "More fun, lower price",
+    ],
+    highlighted: false,
+    badge: "Save 25%",
+    group: true,
+  },
+  {
+    name: "Small Group",
+    subtitle: "3-4 students",
+    perLesson: "14",
+    perLessonEur: "12",
+    perLessonCzk: "290",
+    package: "56",
+    packageEur: "48",
+    packageCzk: "1,160",
+    features: [
+      "Social learning environment",
+      "Group conversations and activities",
+      "Best value per lesson",
+    ],
+    highlighted: false,
+    badge: "Save 42%",
+    group: true,
+  },
+];
 ---
 
 <section id="pricing" class="bg-white py-16">
-  <div class="max-w-4xl mx-auto px-6 text-center">
-    <h2 class="text-2xl md:text-3xl font-bold text-primary mb-8">Pricing</h2>
-    <div
-      class="relative inline-block bg-cream border-2 border-primary rounded-2xl p-10 shadow-sm overflow-hidden"
-    >
-      <!-- Subtle corner accent -->
-      <div class="absolute -top-6 -right-6 w-24 h-24 bg-primary/5 rounded-full" aria-hidden="true"></div>
-      <div class="absolute -bottom-6 -left-6 w-20 h-20 bg-primary/5 rounded-full" aria-hidden="true"></div>
+  <div class="max-w-5xl mx-auto px-6 text-center">
+    <h2 class="text-2xl md:text-3xl font-bold text-primary mb-3">Pricing</h2>
+    <p class="flex items-center justify-center gap-3 mb-3">
+      <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
+      <span class="text-base italic text-primary/50">Precios</span>
+      <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
+    </p>
+    <p class="text-gray-500 mb-4">All lessons are 55 minutes via Google Meet. Sold in packages of 4.</p>
 
-      <p class="relative text-gray-500 mb-2 font-bold uppercase tracking-wide text-sm">
-        Lesson duration: 55 minutes
+    <!-- Guarantee (prominent) -->
+    <div class="inline-flex items-center gap-2 bg-primary/[0.06] rounded-full px-5 py-2.5 mb-10">
+      <svg class="w-5 h-5 text-primary shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+      <p class="text-sm text-gray-700">
+        <span class="font-bold">Try risk-free:</span> pay only for the first lesson, then decide. No strings attached.
       </p>
-      <p class="relative text-4xl font-bold text-primary mb-1">24 USD</p>
-      <p class="relative text-gray-500">21 EUR / 500 CZK</p>
     </div>
-    <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-      <a
-        href={bookingUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="bg-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors"
-      >
-        Schedule a free 20-minute call
-      </a>
-      <a
-        href="/questionnaire"
-        class="border-2 border-primary text-primary px-6 py-3 rounded-lg font-bold hover:bg-primary hover:text-white transition-colors"
-      >
-        Start with a Questionnaire
-      </a>
+
+    <div class="grid md:grid-cols-3 gap-6 mb-8">
+      {
+        plans.map((plan) => (
+          <div
+            class:list={[
+              "relative rounded-xl p-6 flex flex-col text-left overflow-hidden",
+              plan.highlighted
+                ? "border-2 border-primary shadow-lg bg-cream md:scale-[1.03] relative z-10"
+                : "border border-gray-200 shadow-sm",
+            ]}
+          >
+            {plan.badge && (
+              <span class="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
+                {plan.badge}
+              </span>
+            )}
+
+            <h3 class="text-lg font-bold mb-1">{plan.name}</h3>
+            <p class="text-sm text-gray-500 mb-4">{plan.subtitle}</p>
+
+            <div class="mb-4">
+              <p class="text-3xl font-bold text-primary">
+                {plan.perLesson} USD
+                <span class="text-sm font-normal text-gray-500">/ {plan.group ? "student / " : ""}lesson</span>
+              </p>
+              <p class="text-xs text-gray-500 mt-1">
+                {plan.perLessonEur} EUR / {plan.perLessonCzk} CZK per {plan.group ? "student per " : ""}lesson
+              </p>
+            </div>
+
+            <p class="text-sm text-gray-600 mb-4 pb-4 border-b border-gray-200">
+              Package of 4{plan.group ? " per student" : ""}: <span class="font-bold">{plan.package} USD</span>
+              <span class="text-gray-500"> ({plan.packageEur} EUR / {plan.packageCzk} CZK)</span>
+            </p>
+
+            <ul class="space-y-2.5 text-sm text-gray-600 flex-1 mb-6">
+              {plan.features.map((f) => (
+                <li class="flex items-start gap-2">
+                  <Fragment set:html={checkIcon} />
+                  {f}
+                </li>
+              ))}
+            </ul>
+
+            <a
+              href={bookingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class:list={[
+                "block text-center px-6 py-3 rounded-xl font-bold transition-all cursor-pointer",
+                plan.highlighted
+                  ? "bg-primary text-white hover:bg-blue-700 shadow-lg shadow-primary/20"
+                  : "border-2 border-primary text-primary hover:bg-primary hover:text-white",
+              ]}
+            >
+              Get started
+            </a>
+          </div>
+        ))
+      }
     </div>
   </div>
 </section>

@@ -4,7 +4,7 @@ import { gapSentences } from "../../data/fill-the-gap";
 ---
 
 <Layout title="Fill the Gap — Spanish with Elena Ramón">
-  <section class="max-w-2xl mx-auto px-6 py-12">
+  <section class="max-w-2xl mx-auto px-6 py-16">
     <div class="mb-8">
       <a href="/games" class="text-sm text-primary hover:underline">&larr; All Games</a>
     </div>
@@ -12,11 +12,11 @@ import { gapSentences } from "../../data/fill-the-gap";
     <p class="text-gray-500 text-center mb-8">Pick the correct word to complete the Spanish sentence.</p>
 
     <div class="flex items-center gap-4 mb-6">
-      <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+      <div class="flex-1 h-2.5 bg-gray-200 rounded-full overflow-hidden">
         <div id="progress-bar" class="h-full bg-primary rounded-full transition-all duration-300" style="width: 0%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
       </div>
       <span id="progress-text" class="text-sm text-gray-500">0 / 15</span>
-      <button id="btn-restart-mid" class="text-xs text-gray-500 hover:text-primary transition-colors cursor-pointer">Restart</button>
+      <button id="btn-restart-mid" class="text-sm text-gray-500 hover:text-primary transition-colors cursor-pointer">Restart</button>
     </div>
 
     <div id="game">
@@ -45,6 +45,10 @@ import { gapSentences } from "../../data/fill-the-gap";
       <p id="result-score" class="text-gray-600 mb-2"></p>
       <p id="result-detail" class="text-sm text-gray-500 mb-6"></p>
       <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Play Again</button>
+      <div class="mt-8 pt-6 border-t border-gray-200">
+        <p class="text-sm text-gray-500 mb-3">Want to learn faster with a personal teacher?</p>
+        <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW" target="_blank" rel="noopener noreferrer" class="text-primary font-bold hover:underline text-sm">Book a free intro call with Elena</a>
+      </div>
     </div>
   </section>
 
@@ -91,7 +95,7 @@ import { gapSentences } from "../../data/fill-the-gap";
       optionsEl.innerHTML = "";
       opts.forEach(opt => {
         const btn = document.createElement("button");
-        btn.className = "px-4 py-3 rounded-lg border-2 border-gray-200 font-bold hover:border-primary/40 transition-colors text-sm cursor-pointer";
+        btn.className = "px-4 py-4 rounded-lg border-2 border-gray-200 font-bold hover:border-primary/40 transition-colors text-sm cursor-pointer";
         btn.textContent = opt;
         btn.addEventListener("click", () => handleAnswer(opt, btn));
         optionsEl.appendChild(btn);

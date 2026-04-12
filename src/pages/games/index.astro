@@ -69,7 +69,7 @@ const games = [
 ---
 
 <Layout title="Games — Spanish with Elena Ramón">
-  <section class="max-w-4xl mx-auto px-6 py-12">
+  <section class="max-w-4xl mx-auto px-6 py-16">
     <div class="text-center mb-10">
       <div class="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
         <svg class="w-10 h-10 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -85,12 +85,12 @@ const games = [
       </p>
     </div>
 
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
       {
         games.map((game) => (
           <a
             href={game.href}
-            class="group p-6 rounded-xl border border-gray-200 bg-white hover:border-primary/40 hover:shadow-lg transition-all flex flex-col"
+            class="group p-6 rounded-xl border border-gray-200 bg-white shadow-sm hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5 transition-all flex flex-col"
           >
             <div class:list={["w-12 h-12 rounded-xl flex items-center justify-center mb-4 text-2xl group-hover:scale-110 transition-transform", game.color]}>
               <span aria-hidden="true" set:html={game.icon} />
