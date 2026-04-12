@@ -5,12 +5,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build & Development
 
 ```sh
+npm install        # Install dependencies
 npm run dev        # Dev server at http://localhost:4321
 npm run build      # Production build → ./dist/ (static output)
 npm run preview    # Preview production build locally
 ```
 
-Requires Node.js >=22.12.0. Deployed to Cloudflare Pages (push to `main` triggers auto-deploy, build command: `npm run build`, output: `dist`).
+No linter, formatter, or test runner is configured — there are no lint/test commands to run.
+
+Requires Node.js >=22.12.0. Deployed to Cloudflare Pages (push to `main` triggers auto-deploy, build command: `npm run build`, output: `dist`, env: `NODE_VERSION=22`). Site: https://elenkaspanish.com
 
 ## Architecture
 
@@ -19,7 +22,7 @@ Requires Node.js >=22.12.0. Deployed to Cloudflare Pages (push to `main` trigger
 ### Key directories
 
 - `src/pages/` — File-based routing. Each `.astro` file = one page.
-- `src/pages/games/` — 9 interactive Spanish learning games + index hub.
+- `src/pages/games/` — Interactive Spanish learning games + index hub.
 - `src/data/` — Shared TypeScript data modules (vocabulary, verbs, sentences, accents). Pure exports, no components. All games import from here.
 - `src/components/` — Homepage section components (Hero, Pricing, Testimonials, etc.), assembled in `src/pages/index.astro`.
 - `src/layouts/Layout.astro` — Global shell: sticky nav, mobile hamburger, footer, SEO meta (Open Graph, JSON-LD), font preloading, skip-to-content link, floating WhatsApp button, sticky mobile CTA bar.
@@ -37,7 +40,6 @@ Every game page follows the same structure:
 
 ### External integrations
 
-- **Google Forms** — Questionnaire embed in `src/pages/questionnaire.astro`
 - **Google Calendar** — Booking link in Hero and Pricing components
 - **Web Speech API** — Listening Quiz uses browser speech synthesis (prefers es-MX voice)
 
