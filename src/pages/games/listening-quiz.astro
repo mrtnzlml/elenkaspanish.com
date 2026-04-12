@@ -192,6 +192,7 @@ const allWords = categories.flatMap((c) => c.words);
         results.classList.remove("hidden");
         $("result-score").textContent = correct + " out of " + deck.length + " correct!";
         progressBar.style.width = "100%";
+        progressBar.setAttribute("aria-valuenow", "100");
       } else {
         save();
         showQuestion();
@@ -199,7 +200,9 @@ const allWords = categories.flatMap((c) => c.words);
     }
 
     function updateProgress() {
-      progressBar.style.width = (index / deck.length * 100) + "%";
+      const pct = Math.round(index / deck.length * 100);
+      progressBar.style.width = pct + "%";
+      progressBar.setAttribute("aria-valuenow", String(pct));
       progressText.textContent = index + " / " + deck.length;
     }
 

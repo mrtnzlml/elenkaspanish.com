@@ -188,6 +188,7 @@ import { accentWords } from "../../data/accents";
           $("result-detail").textContent = "Perfect accents!";
         }
         progressBar.style.width = "100%";
+        progressBar.setAttribute("aria-valuenow", "100");
         progressText.textContent = deck.length + " / " + deck.length;
       } else {
         save();
@@ -196,7 +197,9 @@ import { accentWords } from "../../data/accents";
     }
 
     function updateProgress() {
-      progressBar.style.width = (index / deck.length * 100) + "%";
+      const pct = Math.round(index / deck.length * 100);
+      progressBar.style.width = pct + "%";
+      progressBar.setAttribute("aria-valuenow", String(pct));
       progressText.textContent = index + " / " + deck.length;
     }
 

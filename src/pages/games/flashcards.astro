@@ -63,7 +63,7 @@ const catMap = Object.fromEntries(categories.map((c) => [c.name, c.words]));
       <button id="btn-got-it" class="flex-1 max-w-[10rem] px-6 py-3 rounded-lg font-bold border-2 border-green-500 text-green-700 hover:bg-green-50 transition-colors cursor-pointer">Got it!</button>
     </div>
 
-    <p id="flip-prompt" class="text-center text-sm text-gray-500">Tap the card to reveal the answer</p>
+    <p id="flip-prompt" class="text-center text-sm text-gray-500" aria-live="polite">Tap the card to reveal the answer</p>
 
     <div id="results" class="text-center hidden">
       <p class="text-5xl mb-4" aria-hidden="true">&#127881;</p>
@@ -106,8 +106,8 @@ const catMap = Object.fromEntries(categories.map((c) => [c.name, c.words]));
     function showCard() { flipped=false; cardInner.style.transform=""; cardBack.classList.add("invisible"); wordEs.textContent=deck[index].es; wordEn.textContent=""; actions.classList.add("hidden"); flipPrompt.classList.remove("hidden"); updateProgress(); }
     function flipCard() { if(flipped) return; flipped=true; wordEn.textContent=deck[index].en; cardBack.classList.remove("invisible"); cardInner.style.transform="rotateY(180deg)"; actions.classList.remove("hidden"); flipPrompt.classList.add("hidden"); }
     function next(gotIt) { if(gotIt) correct++; else mistakes.push(deck[index]); index++; if(index>=deck.length) { clear(); showResults(); } else { save(); showCard(); } }
-    function updateProgress() { progressBar.style.width=(index/deck.length*100)+"%"; progressText.textContent=index+" / "+deck.length; }
-    function showResults() { cardContainer.classList.add("hidden"); actions.classList.add("hidden"); flipPrompt.classList.add("hidden"); results.classList.remove("hidden"); const pct=Math.round(correct/deck.length*100); resultsScore.textContent=correct+" out of "+deck.length+" correct ("+pct+"%)"; if(!mistakes.length){resultsDetail.textContent="Perfect score!";btnRetryMistakes.classList.add("hidden");}else{resultsDetail.textContent=mistakes.length+" to review: "+mistakes.map(m=>m.es).join(", ");btnRetryMistakes.classList.remove("hidden");} progressBar.style.width="100%"; progressText.textContent=deck.length+" / "+deck.length; }
+    function updateProgress() { const pct=Math.round(index/deck.length*100); progressBar.style.width=pct+"%"; progressBar.setAttribute("aria-valuenow",String(pct)); progressText.textContent=index+" / "+deck.length; }
+    function showResults() { cardContainer.classList.add("hidden"); actions.classList.add("hidden"); flipPrompt.classList.add("hidden"); results.classList.remove("hidden"); const pct=Math.round(correct/deck.length*100); resultsScore.textContent=correct+" out of "+deck.length+" correct ("+pct+"%)"; if(!mistakes.length){resultsDetail.textContent="Perfect score!";btnRetryMistakes.classList.add("hidden");}else{resultsDetail.textContent=mistakes.length+" to review: "+mistakes.map(m=>m.es).join(", ");btnRetryMistakes.classList.remove("hidden");} progressBar.style.width="100%"; progressBar.setAttribute("aria-valuenow","100"); progressText.textContent=deck.length+" / "+deck.length; }
 
     flashcard.addEventListener("click", flipCard);
     document.addEventListener("keydown", (e) => { if(e.key===" "||e.key==="Enter"){if(!flipped){e.preventDefault();flipCard();}}else if(flipped&&index<deck.length){if(e.key==="ArrowLeft"||e.key==="1")next(false);else if(e.key==="ArrowRight"||e.key==="2")next(true);} });

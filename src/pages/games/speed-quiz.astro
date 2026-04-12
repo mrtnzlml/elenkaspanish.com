@@ -76,6 +76,10 @@ const allWords = categories.flatMap((c) => c.words);
       quizScreen.classList.remove("hidden");
       scoreEl.textContent = "0";
       feedback.textContent = "";
+      timerBar.style.width = "100%";
+      timerText.textContent = "60s";
+      timerBar.classList.remove("bg-red-500");
+      timerBar.classList.add("bg-primary");
       nextQuestion();
       timer = setInterval(() => {
         timeLeft--;

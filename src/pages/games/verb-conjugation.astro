@@ -128,6 +128,7 @@ import { verbs } from "../../data/verbs";
           $("result-mistakes").textContent = "Perfect conjugation!";
         }
         progressBar.style.width = "100%";
+        progressBar.setAttribute("aria-valuenow", "100");
       } else {
         save();
         showChallenge();
@@ -135,7 +136,9 @@ import { verbs } from "../../data/verbs";
     }
 
     function updateProgress() {
-      progressBar.style.width = (index / deck.length * 100) + "%";
+      const pct = Math.round(index / deck.length * 100);
+      progressBar.style.width = pct + "%";
+      progressBar.setAttribute("aria-valuenow", String(pct));
       progressText.textContent = index + " / " + deck.length;
     }
 
