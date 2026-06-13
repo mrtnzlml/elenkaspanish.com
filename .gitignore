@@ -2,6 +2,9 @@
 dist/
 # generated types
 .astro/
+# Lighthouse reports (generated via `npm run lighthouse:preview`)
+lighthouse-report.html
+lighthouse-report.json
 
 # dependencies
 node_modules/
@@ -22,3 +25,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Xcode / SwiftPM
+.swiftpm/
