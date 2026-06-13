@@ -4,12 +4,22 @@ import "../styles/global.css";
 interface Props {
   title?: string;
   description?: string;
+  noindex?: boolean;
+  preloadImage?: string;
+  preloadImageType?: string;
 }
 
 const {
   title = "Spanish with Elena Ramón — Your Spanish, Your Adventure",
   description = "Personalized online Spanish lessons with a native speaker. Tailor-made classes for all levels.",
+  noindex = false,
+  preloadImage,
+  preloadImageType,
 } = Astro.props;
+
+const siteUrl = "https://elenkaspanish.com";
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
+const ogImage = `${siteUrl}/elena.jpg`;
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -21,50 +31,169 @@ const jsonLd = {
   email: "elenka.mrm@gmail.com",
   telephone: "+420773710520",
   image: "https://elenkaspanish.com/elena.jpg",
-  priceRange: "24 USD",
+  priceRange: "14–24 USD",
   address: {
     "@type": "PostalAddress",
     addressCountry: "CZ",
   },
+  areaServed: {
+    "@type": "Place",
+    name: "Worldwide (online via Google Meet)",
+  },
+  knowsLanguage: ["es", "en"],
+  makesOffer: [
+    {
+      "@type": "Offer",
+      name: "Individual Spanish lesson (1-on-1)",
+      description:
+        "55-minute 1-on-1 Spanish lesson with Elena via Google Meet. Sold in packages of 4.",
+      price: "24",
+      priceCurrency: "USD",
+    },
+    {
+      "@type": "Offer",
+      name: "Duo Spanish lesson (2 students)",
+      description:
+        "55-minute Spanish lesson for 2 students via Google Meet. Price per student. Sold in packages of 4.",
+      price: "18",
+      priceCurrency: "USD",
+    },
+    {
+      "@type": "Offer",
+      name: "Small group Spanish lesson (3–4 students)",
+      description:
+        "55-minute Spanish lesson for 3–4 students via Google Meet. Price per student. Sold in packages of 4.",
+      price: "14",
+      priceCurrency: "USD",
+    },
+  ],
+  founder: {
+    "@type": "Person",
+    name: "Elena María Ramón Martínez",
+    jobTitle: "Spanish Teacher",
+    nationality: "Mexican",
+    image: "https://elenkaspanish.com/elena.jpg",
+    knowsLanguage: ["es", "en"],
+    alumniOf: {
+      "@type": "CollegeOrUniversity",
+      name: "Universidad Europea Miguel de Cervantes",
+    },
+  },
   sameAs: [],
 };
+
+const segmentNames: Record<string, string> = {
+  games: "Practice Games",
+  hangman: "Hangman",
+  flashcards: "Flashcards",
+  "memory-match": "Memory Match",
+  "fill-the-gap": "Fill the Gap",
+  "verb-conjugation": "Verb Conjugation",
+  "speed-quiz": "Speed Quiz",
+  "sentence-builder": "Sentence Builder",
+  "listening-quiz": "Listening Quiz",
+  "accent-fixer": "Accent Fixer",
+};
+
+const pathSegments = Astro.url.pathname.split("/").filter(Boolean);
+const onGames = pathSegments[0] === "games";
+const breadcrumbLd =
+  !noindex && pathSegments.length > 0
+    ? {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: `${siteUrl}/`,
+          },
+          ...pathSegments.map((seg, i) => ({
+            "@type": "ListItem",
+            position: i + 2,
+            name: segmentNames[seg] ?? seg,
+            item: `${siteUrl}/${pathSegments.slice(0, i + 1).join("/")}/`,
+          })),
+        ],
+      }
+    : null;
 ---
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/favicon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#fefdf8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="apple-mobile-web-app-title" content="Elenka Spanish" />
+    <meta name="application-name" content="Elenka Spanish" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    <link rel="canonical" href={canonicalUrl} />
     <title>{title}</title>
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content="https://elenkaspanish.com/elena.jpg" />
-    <meta property="og:url" content="https://elenkaspanish.com" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:secure_url" content={ogImage} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="908" />
+    <meta property="og:image:alt" content="Elena Ramón, native Spanish teacher" />
+    <meta property="og:url" content={canonicalUrl} />
     <meta property="og:site_name" content="Spanish with Elena Ramón" />
+    <meta property="og:locale" content="en_US" />
 
-    <!-- Font preload -->
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content="Elena Ramón, native Spanish teacher" />
+
+    <!-- DNS-prefetch for outbound click destinations (Google Calendar booking, WhatsApp).
+         Browsers resolve DNS ahead of the click so the eventual navigation starts a beat sooner. -->
+    <link rel="dns-prefetch" href="https://calendar.google.com" />
+    <link rel="dns-prefetch" href="https://wa.me" />
+
+    <!-- Font preload (Manrope variable font; single file covers 400 + 700) -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="preload"
-      href="https://fonts.gstatic.com/s/manrope/v15/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk59FO_F87jxeN7B.woff2"
+      href="https://fonts.gstatic.com/s/manrope/v20/xn7gYHE41ni1AdIRggexSvfedN4.woff2"
       as="font"
       type="font/woff2"
       crossorigin
     />
-    <link
-      rel="preload"
-      href="https://fonts.gstatic.com/s/manrope/v15/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk4GE-_F87jxeN7B.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+
+    {preloadImage && (
+      <link
+        rel="preload"
+        as="image"
+        href={preloadImage}
+        type={preloadImageType}
+        fetchpriority="high"
+      />
+    )}
 
     <!-- Structured data -->
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    {breadcrumbLd && (
+      <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
+    )}
 
     <style>
       .nav-open {
@@ -88,6 +217,7 @@ const jsonLd = {
           class="md:hidden flex flex-col gap-1.5 p-2 -mr-2 cursor-pointer"
           aria-label="Toggle menu"
           aria-expanded="false"
+          aria-controls="mobile-menu"
         >
           <span class="block w-6 h-0.5 bg-gray-800 transition-transform" id="bar1"></span>
           <span class="block w-6 h-0.5 bg-gray-800 transition-opacity" id="bar2"></span>
@@ -98,12 +228,16 @@ const jsonLd = {
         <div class="hidden md:flex items-center gap-6">
           <a href="/#pricing" class="hover:text-primary transition-colors">Pricing</a>
           <a href="/#about" class="hover:text-primary transition-colors">About</a>
-          <a href="/games" class="hover:text-primary transition-colors">Practice</a>
+          <a
+            href="/games"
+            class:list={["hover:text-primary transition-colors", onGames && "text-primary font-bold"]}
+            aria-current={onGames ? "page" : undefined}
+          >Practice</a>
           <a
             href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW"
             target="_blank"
             rel="noopener noreferrer"
-            class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors"
           >
             Book Free Call
           </a>
@@ -111,28 +245,55 @@ const jsonLd = {
       </nav>
 
       <!-- Mobile nav -->
-      <div
+      <nav
         id="mobile-menu"
         class="hidden flex-col gap-4 px-6 pb-6 md:hidden border-t border-gray-200"
+        aria-label="Mobile navigation"
       >
         <a href="/#pricing" class="hover:text-primary transition-colors py-1">Pricing</a>
         <a href="/#about" class="hover:text-primary transition-colors py-1">About</a>
-        <a href="/games" class="hover:text-primary transition-colors py-1">Practice</a>
+        <a
+          href="/games"
+          class:list={["hover:text-primary transition-colors py-1", onGames && "text-primary font-bold"]}
+          aria-current={onGames ? "page" : undefined}
+        >Practice</a>
         <a
           href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW"
           target="_blank"
           rel="noopener noreferrer"
-          class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-center"
+          class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors text-center"
         >
           Book Free Call
         </a>
-      </div>
+      </nav>
     </header>
 
     <main id="main-content" class="relative overflow-hidden">
       <!-- Global decorative blobs -->
       <div class="absolute top-0 right-0 w-[30rem] h-[30rem] bg-primary/[0.04] rounded-full blur-[120px] -z-10" aria-hidden="true"></div>
       <div class="absolute bottom-0 left-0 w-[25rem] h-[25rem] bg-primary/[0.04] rounded-full blur-[120px] -z-10" aria-hidden="true"></div>
+      {breadcrumbLd && (
+        <nav aria-label="Breadcrumb" class="max-w-4xl mx-auto px-6 pt-4">
+          <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-500 list-none p-0 m-0">
+            {breadcrumbLd.itemListElement.map((item, i) => {
+              const isLast = i === breadcrumbLd.itemListElement.length - 1;
+              const path = item.item.replace(siteUrl, "") || "/";
+              return (
+                <li class="flex items-center gap-2">
+                  {isLast ? (
+                    <span aria-current="page" class="text-gray-800 font-bold">{item.name}</span>
+                  ) : (
+                    <>
+                      <a href={path} class="hover:text-primary transition-colors">{item.name}</a>
+                      <span aria-hidden="true" class="text-gray-400">&rsaquo;</span>
+                    </>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        </nav>
+      )}
       <slot />
     </main>
 
@@ -140,21 +301,21 @@ const jsonLd = {
       <div class="max-w-4xl mx-auto px-6 py-10">
         <div class="grid sm:grid-cols-3 gap-8 mb-8">
           <div>
-            <p class="font-bold text-primary mb-3">Elenka Spanish</p>
+            <h2 class="font-bold text-primary mb-3">Elenka Spanish</h2>
             <p class="text-sm text-gray-500 leading-relaxed">Personalized online Spanish lessons with a native Mexican teacher.</p>
           </div>
           <div>
-            <p class="font-bold mb-3">Quick Links</p>
-            <nav class="flex flex-col gap-2 text-sm text-gray-500">
+            <h2 id="footer-quick-links" class="font-bold mb-3">Quick Links</h2>
+            <nav aria-labelledby="footer-quick-links" class="flex flex-col gap-2 text-sm text-gray-500">
               <a href="/#pricing" class="hover:text-primary transition-colors">Pricing</a>
               <a href="/#about" class="hover:text-primary transition-colors">About Elena</a>
               <a href="/#faq" class="hover:text-primary transition-colors">FAQ</a>
-              <a href="/games" class="hover:text-primary transition-colors">Practice Games</a>
+              <a href="/games" class="hover:text-primary transition-colors" aria-current={onGames ? "page" : undefined}>Practice Games</a>
             </nav>
           </div>
           <div>
-            <p class="font-bold mb-3">Get in Touch</p>
-            <nav class="flex flex-col gap-2 text-sm text-gray-500">
+            <h2 id="footer-get-in-touch" class="font-bold mb-3">Get in Touch</h2>
+            <nav aria-labelledby="footer-get-in-touch" class="flex flex-col gap-2 text-sm text-gray-500">
               <a href="mailto:elenka.mrm@gmail.com" class="hover:text-primary transition-colors">elenka.mrm@gmail.com</a>
               <a href="https://wa.me/420773710520" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors">WhatsApp: +420 773 710 520</a>
               <a
@@ -193,7 +354,7 @@ const jsonLd = {
         href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW"
         target="_blank"
         rel="noopener noreferrer"
-        class="block bg-primary text-white text-center px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-primary/20 mr-16"
+        class="block bg-primary text-white text-center px-6 py-3 rounded-xl font-bold hover:bg-primary-dark transition-colors shadow-lg shadow-primary/20 mr-16"
       >
         Book a free call
       </a>
@@ -206,41 +367,52 @@ const jsonLd = {
       const bar2 = document.getElementById("bar2")!;
       const bar3 = document.getElementById("bar3")!;
 
-      toggle.addEventListener("click", () => {
-        const open = menu.classList.toggle("nav-open");
+      const setMenuOpen = (open: boolean) => {
+        menu.classList.toggle("nav-open", open);
         toggle.setAttribute("aria-expanded", String(open));
         bar1.style.transform = open ? "rotate(45deg) translate(4px, 4px)" : "";
         bar2.style.opacity = open ? "0" : "1";
         bar3.style.transform = open ? "rotate(-45deg) translate(4px, -4px)" : "";
+      };
+
+      toggle.addEventListener("click", () => {
+        setMenuOpen(!menu.classList.contains("nav-open"));
       });
 
       // Close mobile menu when a link is clicked
       menu.querySelectorAll("a").forEach((link) => {
-        link.addEventListener("click", () => {
-          menu.classList.remove("nav-open");
-          toggle.setAttribute("aria-expanded", "false");
-          bar1.style.transform = "";
-          bar2.style.opacity = "1";
-          bar3.style.transform = "";
-        });
+        link.addEventListener("click", () => setMenuOpen(false));
       });
 
-      // Scroll-triggered fade-in animations
-      const fadeObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            fadeObserver.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.1 });
-
-      document.querySelectorAll('main section').forEach((s, i) => {
-        if (i === 0) return; // Hero visible immediately
-        if (s.getBoundingClientRect().top < window.innerHeight) return; // Already in viewport
-        s.classList.add('fade-in-section');
-        fadeObserver.observe(s);
+      // Escape closes the menu and returns focus to the toggle
+      // (WAI-ARIA disclosure pattern). No-ops when the menu is already closed.
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && menu.classList.contains("nav-open")) {
+          setMenuOpen(false);
+          toggle.focus();
+        }
       });
+
+      // Scroll-triggered fade-in animations — skipped entirely when the
+      // user has requested reduced motion at the OS level.
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!prefersReducedMotion) {
+        const fadeObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              fadeObserver.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('main section').forEach((s, i) => {
+          if (i === 0) return; // Hero visible immediately
+          if (s.getBoundingClientRect().top < window.innerHeight) return; // Already in viewport
+          s.classList.add('fade-in-section');
+          fadeObserver.observe(s);
+        });
+      }
 
       // Sticky mobile CTA — show after scrolling past 500px
       const mobileCta = document.getElementById("mobile-cta");

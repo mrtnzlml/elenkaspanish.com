@@ -2,6 +2,7 @@
 
 @theme {
   --color-primary: #004de5;
+  --color-primary-dark: #003bb3;
   --color-cream: #fefdf8;
   --font-sans: "Manrope", sans-serif;
 }
@@ -11,7 +12,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("https://fonts.gstatic.com/s/manrope/v15/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk59FO_F87jxeN7B.woff2")
+  src: url("https://fonts.gstatic.com/s/manrope/v20/xn7gYHE41ni1AdIRggexSvfedN4.woff2")
     format("woff2");
 }
 
@@ -20,7 +21,7 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url("https://fonts.gstatic.com/s/manrope/v15/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk4GE-_F87jxeN7B.woff2")
+  src: url("https://fonts.gstatic.com/s/manrope/v20/xn7gYHE41ni1AdIRggexSvfedN4.woff2")
     format("woff2");
 }
 
@@ -45,4 +46,23 @@
 .fade-in-section.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Respect OS-level reduced-motion preference (WCAG 2.3.3).
+   Neutralizes transitions, animations, and smooth scroll — users with
+   vestibular disorders, migraines, or motion sensitivity disable motion
+   at the OS level and expect every site to honor it. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .fade-in-section {
+    opacity: 1;
+    transform: none;
+  }
 }

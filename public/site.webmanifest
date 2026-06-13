@@ -1,0 +1,37 @@
+{
+  "name": "Spanish with Elena Ramón",
+  "short_name": "Elenka Spanish",
+  "description": "Personalized online Spanish lessons with a native speaker. Tailor-made classes for all levels.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "minimal-ui",
+  "lang": "en",
+  "dir": "ltr",
+  "theme_color": "#fefdf8",
+  "background_color": "#fefdf8",
+  "categories": ["education"],
+  "icons": [
+    {
+      "src": "/favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
