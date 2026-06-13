@@ -60,14 +60,69 @@ const plans = [
     group: true,
   },
 ];
+
+// Course JSON-LD — one Course representing the ongoing tutoring offering,
+// with one CourseInstance (Online, 55-minute session via Google Meet,
+// taught in Spanish by Elena) and three Offers sourced from the `plans`
+// array above so price/currency cannot silently drift from the visible
+// Pricing card copy. Emitted only on the homepage (the only page where
+// this component is mounted), alongside the LocalBusiness JSON-LD from
+// Layout.astro and the FAQPage JSON-LD from FAQ.astro. Lets Google
+// associate Offers, Instructor, and course delivery mode with the
+// specific Spanish-course offering instead of inferring it from the
+// generic LocalBusiness block.
+const courseJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Course",
+  name: "Online Spanish Lessons with Elena Ramón",
+  description:
+    "Personalized online Spanish lessons with a native Mexican teacher. 55-minute classes via Google Meet, offered 1-on-1, in duos, or small groups of 3–4. Sold in packages of 4 lessons.",
+  url: "https://elenkaspanish.com/",
+  inLanguage: "es",
+  teaches: "Spanish language",
+  educationalLevel: "Beginner to Advanced",
+  provider: {
+    "@type": "Organization",
+    name: "Spanish with Elena Ramón",
+    url: "https://elenkaspanish.com",
+    sameAs: "https://elenkaspanish.com",
+  },
+  hasCourseInstance: {
+    "@type": "CourseInstance",
+    courseMode: "Online",
+    courseWorkload: "PT55M",
+    inLanguage: "es",
+    location: {
+      "@type": "VirtualLocation",
+      url: "https://meet.google.com",
+    },
+    instructor: {
+      "@type": "Person",
+      name: "Elena María Ramón Martínez",
+      jobTitle: "Spanish Teacher",
+      nationality: "Mexican",
+    },
+  },
+  offers: plans.map((p) => ({
+    "@type": "Offer",
+    name: `${p.name} Spanish lesson`,
+    price: p.perLesson,
+    priceCurrency: "USD",
+    category: "Paid",
+    availability: "https://schema.org/InStock",
+    url: "https://elenkaspanish.com/#pricing",
+  })),
+};
 ---
+
+<script type="application/ld+json" set:html={JSON.stringify(courseJsonLd)} />
 
 <section id="pricing" class="bg-white py-16">
   <div class="max-w-5xl mx-auto px-6 text-center">
     <h2 class="text-2xl md:text-3xl font-bold text-primary mb-3">Pricing</h2>
     <p class="flex items-center justify-center gap-3 mb-3">
       <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
-      <span class="text-base italic text-primary/50">Precios</span>
+      <span lang="es" class="text-base italic text-primary/50">Precios</span>
       <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
     </p>
     <p class="text-gray-500 mb-4">All lessons are 55 minutes via Google Meet. Sold in packages of 4.</p>
@@ -131,7 +186,7 @@ const plans = [
               class:list={[
                 "block text-center px-6 py-3 rounded-xl font-bold transition-all cursor-pointer",
                 plan.highlighted
-                  ? "bg-primary text-white hover:bg-blue-700 shadow-lg shadow-primary/20"
+                  ? "bg-primary text-white hover:bg-primary-dark shadow-lg shadow-primary/20"
                   : "border-2 border-primary text-primary hover:bg-primary hover:text-white",
               ]}
             >

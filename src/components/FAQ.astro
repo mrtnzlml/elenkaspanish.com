@@ -25,7 +25,22 @@ const faqs = [
       "Payment is made <strong>in advance</strong> for a package of <strong>4 classes</strong>. I accept bank transfers or Revolut payments, depending on your country. Once we schedule your classes, I will send you the payment details and instructions.",
   },
 ];
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((f) => ({
+    "@type": "Question",
+    name: f.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: f.answer,
+    },
+  })),
+};
 ---
+
+<script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
 
 <section id="faq" class="bg-white py-16">
   <div class="max-w-4xl mx-auto px-6">
@@ -34,7 +49,7 @@ const faqs = [
     </h2>
     <p class="flex items-center justify-center gap-3 mb-10">
       <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
-      <span class="text-base italic text-primary/50">Preguntas frecuentes</span>
+      <span lang="es" class="text-base italic text-primary/50">Preguntas frecuentes</span>
       <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
     </p>
     <div class="divide-y divide-gray-200 border border-gray-200 rounded-xl overflow-hidden shadow-sm">

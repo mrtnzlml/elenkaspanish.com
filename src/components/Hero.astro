@@ -40,7 +40,7 @@ const bookingUrl =
             href={bookingUrl}
             target="_blank"
             rel="noopener noreferrer"
-            class="inline-block bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-primary/20"
+            class="inline-block bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-primary-dark transition-all shadow-lg shadow-primary/20"
           >
             Book a free intro call
           </a>
@@ -59,19 +59,27 @@ const bookingUrl =
         <p class="text-sm text-gray-500">
           No commitment — just a friendly chat about your goals
         </p>
+        <p class="text-sm text-gray-500 mt-2">
+          Or <a href="/games" class="text-primary font-bold hover:underline">try a free practice game first &rarr;</a>
+        </p>
       </div>
 
       <!-- Elena's photo -->
       <div class="mt-10 md:mt-0 flex justify-center shrink-0">
         <div class="relative">
           <div class="absolute -inset-3 bg-primary/[0.08] rounded-2xl rotate-3" aria-hidden="true"></div>
-          <img
-            src="/elena.jpg"
-            alt="Elena María Ramón Martínez"
-            width="280"
-            height="280"
-            class="relative w-52 h-52 md:w-64 md:h-64 object-cover rounded-2xl shadow-lg"
-          />
+          <picture>
+            <source srcset="/elena-square.avif" type="image/avif" />
+            <source srcset="/elena-square.webp" type="image/webp" />
+            <img
+              src="/elena-square.jpg"
+              alt="Elena María Ramón Martínez, Spanish teacher"
+              width="512"
+              height="512"
+              fetchpriority="high"
+              class="relative w-52 h-52 md:w-64 md:h-64 object-cover rounded-2xl shadow-lg"
+            />
+          </picture>
           <div class="absolute -bottom-3 -right-3 bg-white rounded-xl shadow-md px-4 py-2" aria-hidden="true">
             <p class="font-bold text-primary text-sm">&#161;Hola!</p>
             <p class="text-gray-500 text-xs">&#191;Listo para aprender?</p>

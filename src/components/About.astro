@@ -4,18 +4,23 @@
   </h2>
   <p class="flex items-center justify-center gap-3 mb-10">
     <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
-    <span class="text-base italic text-primary/50">Con&oacute;ceme</span>
+    <span lang="es" class="text-base italic text-primary/50">Con&oacute;ceme</span>
     <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
   </p>
   <div class="flex flex-col md:flex-row gap-10 items-center">
-    <img
-      src="/elena.jpg"
-      alt="Elena María Ramón Martínez"
-      width="256"
-      height="256"
-      class="w-48 h-48 md:w-64 md:h-64 object-cover rounded-xl shadow-md"
-      loading="lazy"
-    />
+    <picture>
+      <source srcset="/elena-square.avif" type="image/avif" />
+      <source srcset="/elena-square.webp" type="image/webp" />
+      <img
+        src="/elena-square.jpg"
+        alt="Elena María Ramón Martínez, Spanish teacher"
+        width="512"
+        height="512"
+        class="w-48 h-48 md:w-64 md:h-64 object-cover rounded-xl shadow-md"
+        loading="lazy"
+        decoding="async"
+      />
+    </picture>
     <div class="space-y-4 text-gray-600 leading-relaxed">
       <p>
         Hi! I'm Elena María Ramón Martínez, a Mexican with a global spirit. I
@@ -26,8 +31,8 @@
       <p>
         I hold a Bachelor's degree in Translation, a Master's in Upper
         Secondary and Higher Education Teaching, and a certification in
-        Teaching Spanish as a Foreign Language from Universidad Europea
-        Miguel de Cervantes. Teaching Spanish is my passion, and I've spent
+        Teaching Spanish as a Foreign Language from <span lang="es">Universidad Europea
+        Miguel de Cervantes</span>. Teaching Spanish is my passion, and I've spent
         years helping students achieve their language goals in a meaningful
         and enjoyable way.
       </p>
