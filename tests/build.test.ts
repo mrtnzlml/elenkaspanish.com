@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { load, type CheerioAPI } from "cheerio";
 
@@ -68,12 +68,187 @@ describe("build output", () => {
       expect(existsSync(join(DIST, "sitemap-index.xml"))).toBe(true);
     });
 
+    it("sitemap-0.xml emits per-URL lastmod (not a single global value)", () => {
+      const xml = readFileSync(join(DIST, "sitemap-0.xml"), "utf-8");
+      const urls = [...xml.matchAll(/<url>[\s\S]*?<\/url>/g)].map((m) => m[0]);
+      expect(urls.length).toBeGreaterThan(0);
+      const lastmods = urls.map((u) => {
+        const match = u.match(/<lastmod>([^<]+)<\/lastmod>/);
+        return match ? match[1] : null;
+      });
+      for (const lm of lastmods) {
+        expect(lm, "every URL has a <lastmod>").not.toBeNull();
+      }
+      expect(
+        new Set(lastmods).size,
+        "at least two distinct lastmod values (per-file, not global)",
+      ).toBeGreaterThan(1);
+    });
+
     it("robots.txt exists", () => {
       expect(existsSync(join(DIST, "robots.txt"))).toBe(true);
     });
 
     it("favicon.png exists", () => {
       expect(existsSync(join(DIST, "favicon.png"))).toBe(true);
+    });
+
+    it("favicon-32.png and favicon-180.png exist", () => {
+      expect(existsSync(join(DIST, "favicon-32.png"))).toBe(true);
+      expect(existsSync(join(DIST, "favicon-180.png"))).toBe(true);
+    });
+
+    it("built CSS honors prefers-reduced-motion (WCAG 2.3.3)", () => {
+      const astroDir = join(DIST, "_astro");
+      const cssFiles = existsSync(astroDir)
+        ? readdirSync(astroDir).filter((f) => f.endsWith(".css"))
+        : [];
+      expect(cssFiles.length, "built CSS bundle present").toBeGreaterThan(0);
+      const css = cssFiles
+        .map((f) => readFileSync(join(astroDir, f), "utf-8"))
+        .join("\n");
+      expect(css).toMatch(/@media[^{]*prefers-reduced-motion[^{]*reduce/);
+    });
+
+    it("site.webmanifest exists with required fields and icons resolve", () => {
+      const manifestPath = join(DIST, "site.webmanifest");
+      expect(existsSync(manifestPath), "site.webmanifest missing").toBe(true);
+      const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
+      expect(manifest.name, "manifest name").toBeTruthy();
+      expect(manifest.short_name, "manifest short_name").toBeTruthy();
+      expect(manifest.start_url, "manifest start_url").toBe("/");
+      expect(manifest.display, "manifest display").toBeTruthy();
+      expect(manifest.theme_color, "manifest theme_color matches meta").toBe(
+        "#fefdf8",
+      );
+      expect(manifest.background_color, "manifest background_color").toBe(
+        "#fefdf8",
+      );
+      expect(
+        Array.isArray(manifest.icons) && manifest.icons.length > 0,
+        "manifest icons array",
+      ).toBe(true);
+      for (const icon of manifest.icons) {
+        expect(icon.src, "icon src").toBeTruthy();
+        const rel = icon.src.replace(/^\//, "");
+        expect(
+          existsSync(join(DIST, rel)),
+          `manifest icon ${icon.src} missing from dist`,
+        ).toBe(true);
+      }
+    });
+
+    it("manifest declares W3C-standard categories for store/launcher classification", () => {
+      const manifest = JSON.parse(
+        readFileSync(join(DIST, "site.webmanifest"), "utf-8"),
+      );
+      expect(
+        Array.isArray(manifest.categories),
+        "manifest.categories must be an array",
+      ).toBe(true);
+      expect(manifest.categories).toContain("education");
+    });
+
+    it("manifest declares a 512x512 maskable icon for Android adaptive launchers", () => {
+      const manifest = JSON.parse(
+        readFileSync(join(DIST, "site.webmanifest"), "utf-8"),
+      );
+      const maskable = manifest.icons.find((i: { purpose?: string }) =>
+        typeof i.purpose === "string" && i.purpose.split(/\s+/).includes("maskable"),
+      );
+      expect(maskable, "no maskable icon entry in manifest").toBeTruthy();
+      expect(maskable.sizes).toBe("512x512");
+      expect(maskable.type).toBe("image/png");
+    });
+
+    it("every page links the web app manifest and mobile app-name meta", () => {
+      for (const page of ALL_PAGES) {
+        const $ = readPage(page);
+        expect(
+          $('link[rel="manifest"]').attr("href"),
+          `${page} missing manifest link`,
+        ).toBe("/site.webmanifest");
+        expect(
+          $('meta[name="apple-mobile-web-app-title"]').attr("content"),
+          `${page} missing apple-mobile-web-app-title`,
+        ).toBe("Elenka Spanish");
+        expect(
+          $('meta[name="application-name"]').attr("content"),
+          `${page} missing application-name`,
+        ).toBe("Elenka Spanish");
+      }
+    });
+
+    it("every page pins color-scheme to light (built-in UI renders consistently on dark-mode OS)", () => {
+      for (const page of ALL_PAGES) {
+        const $ = readPage(page);
+        expect(
+          $('meta[name="color-scheme"]').attr("content"),
+          `${page} missing color-scheme meta`,
+        ).toBe("light");
+      }
+    });
+
+    it("every page disables iOS telephone auto-linking (keeps pricing/dates from styling as tel: links)", () => {
+      for (const page of ALL_PAGES) {
+        const $ = readPage(page);
+        expect(
+          $('meta[name="format-detection"]').attr("content"),
+          `${page} missing format-detection meta`,
+        ).toBe("telephone=no");
+      }
+    });
+
+    it("every page declares a strict Referrer-Policy (trims Referer on cross-origin navigations)", () => {
+      for (const page of ALL_PAGES) {
+        const $ = readPage(page);
+        expect(
+          $('meta[name="referrer"]').attr("content"),
+          `${page} missing referrer meta`,
+        ).toBe("strict-origin-when-cross-origin");
+      }
+    });
+
+    it("every page declares standalone web-app-capable + iOS status bar style", () => {
+      for (const page of ALL_PAGES) {
+        const $ = readPage(page);
+        expect(
+          $('meta[name="apple-mobile-web-app-capable"]').attr("content"),
+          `${page} missing apple-mobile-web-app-capable`,
+        ).toBe("yes");
+        expect(
+          $('meta[name="mobile-web-app-capable"]').attr("content"),
+          `${page} missing mobile-web-app-capable`,
+        ).toBe("yes");
+        expect(
+          $('meta[name="apple-mobile-web-app-status-bar-style"]').attr(
+            "content",
+          ),
+          `${page} missing apple-mobile-web-app-status-bar-style`,
+        ).toBe("default");
+      }
+    });
+
+    it("every page links sized favicon variants (32, 512) + apple-touch 180", () => {
+      for (const page of ALL_PAGES) {
+        const $ = readPage(page);
+        const icons = $('link[rel="icon"]')
+          .map((_, el) => ({
+            href: $(el).attr("href"),
+            sizes: $(el).attr("sizes"),
+          }))
+          .get();
+        expect(icons, `${page} missing 32x32 favicon`).toContainEqual({
+          href: "/favicon-32.png",
+          sizes: "32x32",
+        });
+        expect(icons, `${page} missing 512x512 favicon`).toContainEqual({
+          href: "/favicon.png",
+          sizes: "512x512",
+        });
+        const apple = $('link[rel="apple-touch-icon"]').attr("href");
+        expect(apple, `${page} apple-touch-icon`).toBe("/favicon-180.png");
+      }
     });
   });
 });
@@ -102,12 +277,78 @@ describe("SEO & meta tags", () => {
     expect($('meta[name="description"]').attr("content")).toBeTruthy();
   });
 
+  it("every page has theme-color and preconnects to fonts.gstatic.com", () => {
+    for (const page of ALL_PAGES) {
+      const $ = readPage(page);
+      expect(
+        $('meta[name="theme-color"]').attr("content"),
+        `${page} missing theme-color`,
+      ).toBe("#fefdf8");
+      const preconnectHrefs = $('link[rel="preconnect"]')
+        .map((_, el) => $(el).attr("href"))
+        .get();
+      expect(
+        preconnectHrefs,
+        `${page} missing fonts.gstatic.com preconnect`,
+      ).toContain("https://fonts.gstatic.com");
+    }
+  });
+
+  it("every page dns-prefetches Google Calendar and wa.me", () => {
+    for (const page of ALL_PAGES) {
+      const $ = readPage(page);
+      const dnsPrefetchHrefs = $('link[rel="dns-prefetch"]')
+        .map((_, el) => $(el).attr("href"))
+        .get();
+      expect(
+        dnsPrefetchHrefs,
+        `${page} missing calendar.google.com dns-prefetch`,
+      ).toContain("https://calendar.google.com");
+      expect(
+        dnsPrefetchHrefs,
+        `${page} missing wa.me dns-prefetch`,
+      ).toContain("https://wa.me");
+    }
+  });
+
+  it("homepage preloads the square AVIF hero image, not the portrait original", () => {
+    const $ = readPage("/");
+    const preloadHref = $('link[rel="preload"][as="image"]').attr("href");
+    expect(preloadHref).toBe("/elena-square.avif");
+  });
+
+  it("Hero and About <picture> blocks reference the square image variants", () => {
+    const $ = readPage("/");
+    const avifSources = $('source[type="image/avif"]')
+      .map((_, el) => $(el).attr("srcset"))
+      .get();
+    expect(avifSources).toContain("/elena-square.avif");
+    expect(avifSources).not.toContain("/elena.avif");
+  });
+
   it("homepage has Open Graph tags", () => {
     const $ = readPage("/");
     expect($('meta[property="og:title"]').attr("content")).toBeTruthy();
     expect($('meta[property="og:description"]').attr("content")).toBeTruthy();
     expect($('meta[property="og:image"]').attr("content")).toBeTruthy();
     expect($('meta[property="og:url"]').attr("content")).toBeTruthy();
+  });
+
+  it("every page declares og:image:type and og:image:secure_url for crawler spec-completeness", () => {
+    for (const page of ALL_PAGES) {
+      const $ = readPage(page);
+      const ogImage = $('meta[property="og:image"]').attr("content");
+      expect(ogImage, `${page} missing og:image`).toBeTruthy();
+      expect(ogImage!.startsWith("https://")).toBe(true);
+      expect(
+        $('meta[property="og:image:type"]').attr("content"),
+        `${page} missing og:image:type`,
+      ).toBe("image/jpeg");
+      expect(
+        $('meta[property="og:image:secure_url"]').attr("content"),
+        `${page} og:image:secure_url should mirror og:image`,
+      ).toBe(ogImage);
+    }
   });
 
   it("homepage has valid JSON-LD structured data", () => {
@@ -119,12 +360,199 @@ describe("SEO & meta tags", () => {
     expect(data["@type"]).toBe("LocalBusiness");
     expect(data.name).toBeTruthy();
     expect(data.url).toBeTruthy();
+    expect(data.areaServed).toBeTruthy();
+    expect(data.knowsLanguage).toEqual(expect.arrayContaining(["es", "en"]));
+  });
+
+  it("LocalBusiness JSON-LD includes makesOffer matching the Pricing component", () => {
+    const $ = readPage("/");
+    const raw = $('script[type="application/ld+json"]').html();
+    const data = JSON.parse(raw!);
+    expect(data.priceRange).toMatch(/14[\s\S]*24\s*USD/);
+    expect(Array.isArray(data.makesOffer)).toBe(true);
+    expect(data.makesOffer).toHaveLength(3);
+    const prices = data.makesOffer.map((o: { price: string }) => o.price);
+    expect(prices).toEqual(expect.arrayContaining(["14", "18", "24"]));
+    for (const offer of data.makesOffer) {
+      expect(offer["@type"]).toBe("Offer");
+      expect(offer.priceCurrency).toBe("USD");
+      expect(offer.name).toBeTruthy();
+    }
+  });
+
+  it("LocalBusiness JSON-LD includes a Person founder matching the About component", () => {
+    const $ = readPage("/");
+    const raw = $('script[type="application/ld+json"]').html();
+    const data = JSON.parse(raw!);
+    expect(data.founder).toBeDefined();
+    expect(data.founder["@type"]).toBe("Person");
+    expect(data.founder.name).toBe("Elena María Ramón Martínez");
+    expect(data.founder.jobTitle).toBeTruthy();
+    expect(data.founder.nationality).toBe("Mexican");
+    expect(data.founder.knowsLanguage).toEqual(
+      expect.arrayContaining(["es", "en"]),
+    );
+    expect(data.founder.alumniOf["@type"]).toBe("CollegeOrUniversity");
+    expect(data.founder.alumniOf.name).toBe(
+      "Universidad Europea Miguel de Cervantes",
+    );
+  });
+
+  it("homepage emits Course JSON-LD sourced from the Pricing component", () => {
+    const $ = readPage("/");
+    const scripts = $('script[type="application/ld+json"]')
+      .map((_, el) => $(el).html())
+      .get();
+    const parsed = scripts.map((s) => JSON.parse(s!));
+    const course = parsed.find((d) => d["@type"] === "Course");
+    expect(course, "missing Course JSON-LD on homepage").toBeDefined();
+    expect(course.name).toMatch(/Spanish/i);
+    expect(course.description).toBeTruthy();
+    expect(course.url).toBe("https://elenkaspanish.com/");
+    expect(course.inLanguage).toBe("es");
+    expect(course.teaches).toBeTruthy();
+    expect(course.provider["@type"]).toBe("Organization");
+    expect(course.provider.name).toBeTruthy();
+    expect(course.provider.url).toBe("https://elenkaspanish.com");
+    // CourseInstance: online, 55-minute session, Spanish-language, instructor Elena
+    expect(course.hasCourseInstance["@type"]).toBe("CourseInstance");
+    expect(course.hasCourseInstance.courseMode).toBe("Online");
+    expect(course.hasCourseInstance.courseWorkload).toBe("PT55M");
+    expect(course.hasCourseInstance.inLanguage).toBe("es");
+    expect(course.hasCourseInstance.location["@type"]).toBe("VirtualLocation");
+    expect(course.hasCourseInstance.instructor["@type"]).toBe("Person");
+    expect(course.hasCourseInstance.instructor.name).toBe(
+      "Elena María Ramón Martínez",
+    );
+    // Offers: 3 Paid Offers priced in USD matching the Pricing card copy (14/18/24).
+    expect(Array.isArray(course.offers)).toBe(true);
+    expect(course.offers).toHaveLength(3);
+    const prices = course.offers.map((o: { price: string }) => o.price);
+    expect(prices).toEqual(expect.arrayContaining(["14", "18", "24"]));
+    for (const offer of course.offers) {
+      expect(offer["@type"]).toBe("Offer");
+      expect(offer.priceCurrency).toBe("USD");
+      expect(offer.category).toBe("Paid");
+      expect(offer.name).toBeTruthy();
+      expect(offer.availability).toBe("https://schema.org/InStock");
+    }
+  });
+
+  it("Course JSON-LD is emitted only on the homepage (where Pricing mounts)", () => {
+    const nonHomepagePages = [
+      "/404",
+      "/games",
+      ...GAME_PAGES,
+    ];
+    for (const page of nonHomepagePages) {
+      const p =
+        page === "/404"
+          ? join(DIST, "404.html")
+          : join(DIST, page, "index.html");
+      if (!existsSync(p)) continue;
+      const $ = load(readFileSync(p, "utf-8"));
+      const scripts = $('script[type="application/ld+json"]')
+        .map((_, el) => $(el).html())
+        .get();
+      const hasCourse = scripts
+        .map((s) => JSON.parse(s!))
+        .some((d) => d["@type"] === "Course");
+      expect(hasCourse, `unexpected Course JSON-LD on ${page}`).toBe(false);
+    }
   });
 
   it("game pages have unique titles", () => {
     const titles = GAME_PAGES.map((p) => readPage(p)("title").text());
     const dupes = titles.filter((t, i) => titles.indexOf(t) !== i);
     expect(dupes).toEqual([]);
+  });
+
+  it("game pages emit BreadcrumbList JSON-LD (Home > Games > <Game>)", () => {
+    for (const page of GAME_PAGES) {
+      const $ = readPage(page);
+      const scripts = $('script[type="application/ld+json"]')
+        .map((_, el) => $(el).html())
+        .get();
+      const breadcrumb = scripts
+        .map((s) => JSON.parse(s!))
+        .find((d) => d["@type"] === "BreadcrumbList");
+      expect(breadcrumb, `missing BreadcrumbList on ${page}`).toBeDefined();
+      expect(breadcrumb.itemListElement).toHaveLength(3);
+      expect(breadcrumb.itemListElement[0].name).toBe("Home");
+      expect(breadcrumb.itemListElement[1].name).toBe("Practice Games");
+      expect(breadcrumb.itemListElement[2].item).toBe(
+        `https://elenkaspanish.com${page}/`,
+      );
+    }
+  });
+
+  it("games hub emits BreadcrumbList (Home > Practice Games)", () => {
+    const $ = readPage("/games");
+    const scripts = $('script[type="application/ld+json"]')
+      .map((_, el) => $(el).html())
+      .get();
+    const breadcrumb = scripts
+      .map((s) => JSON.parse(s!))
+      .find((d) => d["@type"] === "BreadcrumbList");
+    expect(breadcrumb).toBeDefined();
+    expect(breadcrumb.itemListElement).toHaveLength(2);
+    expect(breadcrumb.itemListElement[1].name).toBe("Practice Games");
+  });
+
+  it("homepage and 404 do NOT emit BreadcrumbList (single-segment or noindex)", () => {
+    for (const page of ["/", "/404"]) {
+      const p =
+        page === "/404"
+          ? join(DIST, "404.html")
+          : join(DIST, "index.html");
+      if (!existsSync(p)) continue;
+      const $ = load(readFileSync(p, "utf-8"));
+      const scripts = $('script[type="application/ld+json"]')
+        .map((_, el) => $(el).html())
+        .get();
+      const hasBreadcrumb = scripts
+        .map((s) => JSON.parse(s!))
+        .some((d) => d["@type"] === "BreadcrumbList");
+      expect(hasBreadcrumb, `unexpected BreadcrumbList on ${page}`).toBe(false);
+    }
+  });
+
+  it("game pages render a visible breadcrumb nav matching the JSON-LD", () => {
+    for (const page of GAME_PAGES) {
+      const $ = readPage(page);
+      const nav = $('nav[aria-label="Breadcrumb"]');
+      expect(nav.length, `missing breadcrumb nav on ${page}`).toBe(1);
+      const items = nav.find("ol > li");
+      expect(items.length, `wrong item count on ${page}`).toBe(3);
+      // Home + Practice Games are links; current page is aria-current
+      expect(nav.find('a[href="/"]').length).toBe(1);
+      expect(nav.find('a[href="/games/"]').length).toBe(1);
+      expect(nav.find('[aria-current="page"]').length).toBe(1);
+    }
+  });
+
+  it("games hub renders a 2-item visible breadcrumb (Home > Practice Games)", () => {
+    const $ = readPage("/games");
+    const nav = $('nav[aria-label="Breadcrumb"]');
+    expect(nav.length).toBe(1);
+    expect(nav.find("ol > li").length).toBe(2);
+    expect(nav.find('a[href="/"]').length).toBe(1);
+    expect(nav.find('[aria-current="page"]').text()).toBe("Practice Games");
+  });
+
+  it("homepage and 404 do NOT render a visible breadcrumb", () => {
+    for (const page of ["/", "/404"]) {
+      const p =
+        page === "/404"
+          ? join(DIST, "404.html")
+          : join(DIST, "index.html");
+      if (!existsSync(p)) continue;
+      const $ = load(readFileSync(p, "utf-8"));
+      expect(
+        $('nav[aria-label="Breadcrumb"]').length,
+        `unexpected breadcrumb on ${page}`,
+      ).toBe(0);
+    }
   });
 });
 
@@ -164,11 +592,106 @@ describe("layout elements", () => {
     expect($("#menu-toggle").attr("aria-label")).toBeTruthy();
   });
 
+  // WAI-ARIA disclosure pattern: aria-controls points the toggle at the
+  // region it reveals so assistive tech can jump between them. The target
+  // id must also exist in the document.
+  it("mobile menu toggle has aria-controls pointing at an existing region", () => {
+    const $ = readPage("/");
+    const target = $("#menu-toggle").attr("aria-controls");
+    expect(target).toBe("mobile-menu");
+    expect($(`#${target}`).length).toBe(1);
+  });
+
+  // WAI-ARIA disclosure pattern: pressing Escape while the mobile menu is
+  // open should close it and return focus to the toggle. Asserts the keydown
+  // handler is present in the inline layout script.
+  it("mobile menu closes on Escape (WAI-ARIA disclosure)", () => {
+    const html = readFileSync(htmlPath("/"), "utf-8");
+    // Minified vars change name, but the call structure is stable: a keydown
+    // listener that checks `key === "Escape"`, inspects `nav-open`, and calls
+    // `.focus()` to restore focus to the toggle.
+    expect(html).toMatch(/addEventListener\("keydown"/);
+    expect(html).toMatch(/"Escape"[\s\S]{0,120}"nav-open"[\s\S]{0,120}\.focus\(\)/);
+  });
+
   it("decorative blobs are aria-hidden", () => {
     const $ = readPage("/");
     $("main > div.absolute").each((_, el) => {
       expect($(el).attr("aria-hidden")).toBe("true");
     });
+  });
+
+  it("homepage Practice nav link is NOT aria-current", () => {
+    const $ = readPage("/");
+    const practiceLinks = $('nav a[href="/games"]');
+    expect(practiceLinks.length).toBe(3);
+    practiceLinks.each((_, el) => {
+      expect($(el).attr("aria-current")).toBeUndefined();
+    });
+  });
+
+  it.each(["/games", ...GAME_PAGES])(
+    "%s → Practice nav links carry aria-current=\"page\"",
+    (page) => {
+      const $ = readPage(page);
+      const practiceLinks = $('nav a[href="/games"]');
+      expect(practiceLinks.length).toBe(3);
+      practiceLinks.each((_, el) => {
+        expect($(el).attr("aria-current")).toBe("page");
+      });
+    },
+  );
+
+  it("memory-match tiles get an aria-label when hidden", () => {
+    const html = readFileSync(htmlPath("/games/memory-match"), "utf-8");
+    expect(
+      html,
+      "newGame should set aria-label on each hidden tile",
+    ).toMatch(/setAttribute\("aria-label",\s*`Hidden tile \$\{idx \+ 1\} of \$\{tiles\.length\}`\)/);
+    expect(
+      html,
+      "reveal() should remove aria-label so textContent becomes the name",
+    ).toMatch(/removeAttribute\("aria-label"\)/);
+    expect(
+      html,
+      "hide() should restore aria-label when a mismatch flips back",
+    ).toMatch(/setAttribute\("aria-label",\s*`Hidden tile \$\{idx \+ 1\} of \$\{cards\.length\}`\)/);
+  });
+
+  it("verb-conjugation input has an accessible name", () => {
+    const $ = readPage("/games/verb-conjugation");
+    const input = $("#answer-input");
+    expect(input.length).toBe(1);
+    const labelledBy = input.attr("aria-labelledby");
+    expect(labelledBy).toBeTruthy();
+    labelledBy!.split(/\s+/).forEach((id) => {
+      expect($(`#${id}`).length, `aria-labelledby target #${id} missing`).toBe(1);
+    });
+    const describedBy = input.attr("aria-describedby");
+    expect(describedBy).toBeTruthy();
+    describedBy!.split(/\s+/).forEach((id) => {
+      expect($(`#${id}`).length, `aria-describedby target #${id} missing`).toBe(1);
+    });
+  });
+
+  it("hangman reveals a prominent replay CTA when the round ends", () => {
+    const $ = readPage("/games/hangman");
+    const container = $("#round-end");
+    expect(container.length, "#round-end container missing").toBe(1);
+    expect(container.hasClass("hidden"), "#round-end starts hidden during play").toBe(true);
+    const btn = $("#btn-try-again");
+    expect(btn.length, "#btn-try-again missing").toBe(1);
+    expect(btn.text().trim()).toBe("Try another word");
+    expect(btn.hasClass("cursor-pointer"), "replay CTA needs cursor-pointer").toBe(true);
+    const html = readFileSync(htmlPath("/games/hangman"), "utf-8");
+    expect(
+      html,
+      "newGame() should re-hide the replay CTA",
+    ).toMatch(/\$\("round-end"\)\.classList\.add\("hidden"\)/);
+    expect(
+      html.match(/\$\("round-end"\)\.classList\.remove\("hidden"\)/g)?.length ?? 0,
+      "win and loss branches should each reveal the replay CTA",
+    ).toBe(2);
   });
 });
 
@@ -196,6 +719,12 @@ describe("homepage sections", () => {
   it("hero section exists", () => {
     const $ = readPage("/");
     expect($("#hero").length).toBe(1);
+  });
+
+  it("hero links to the games hub", () => {
+    const $ = readPage("/");
+    const heroGamesLinks = $('#hero a[href="/games"]');
+    expect(heroGamesLinks.length).toBeGreaterThan(0);
   });
 });
 
@@ -256,6 +785,18 @@ describe("images", () => {
       });
     }
   });
+
+  it("Elena portrait alt identifies her and her role (Spanish teacher)", () => {
+    const $ = readPage("/");
+    const alts = $('img[src="/elena-square.jpg"]')
+      .map((_, el) => $(el).attr("alt"))
+      .get();
+    expect(alts.length).toBeGreaterThanOrEqual(2);
+    for (const alt of alts) {
+      expect(alt).toContain("Elena María Ramón Martínez");
+      expect(alt).toContain("Spanish teacher");
+    }
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -266,6 +807,17 @@ describe("404 page", () => {
   it("has a link back to homepage", () => {
     const $ = load(readFileSync(join(DIST, "404.html"), "utf-8"));
     expect($('a[href="/"]').length).toBeGreaterThan(0);
+  });
+
+  it("has a secondary link to /games for recovery", () => {
+    // 404 is a recovery moment — surfacing the practice-games hub (the
+    // second-most-engaging destination after the homepage) gives users who
+    // mistyped a game URL a one-click path back onto the learning surface
+    // instead of only the generic homepage.
+    const $ = load(readFileSync(join(DIST, "404.html"), "utf-8"));
+    const $gamesLink = $('main a[href="/games"]');
+    expect($gamesLink.length).toBeGreaterThan(0);
+    expect($gamesLink.first().text().trim().toLowerCase()).toContain("games");
   });
 
   it("has a title", () => {
@@ -296,6 +848,22 @@ describe("games index", () => {
       const text = $(el).text().trim();
       expect(text.length, "game card has no text").toBeGreaterThan(0);
     });
+  });
+
+  it("has an in-flow booking CTA below the game grid", () => {
+    // The hub is the one main content page that previously had no in-flow
+    // booking prompt — every individual game page has BookingCta after the
+    // results screen, and the homepage has Pricing + BookingCta. Visitors
+    // who browse the hub are high-intent (they've sought out practice) and
+    // deserve a conversion surface below the grid, not just the header/
+    // footer/sticky-mobile-bar chrome they share with every other page.
+    const $ = readPage("/games");
+    const inflow = $('main a[href*="calendar.google.com/calendar"]');
+    expect(inflow.length, "no in-flow booking link in <main>").toBeGreaterThan(
+      0,
+    );
+    const text = inflow.first().text().trim().toLowerCase();
+    expect(text).toContain("book");
   });
 });
 
@@ -337,6 +905,15 @@ describe("game pages — common structure", () => {
   it.each(GAME_PAGES)("%s has a booking link in results area", (page) => {
     const $ = readPage(page);
     expect($('a[href*="calendar.google.com"]').length).toBeGreaterThan(0);
+  });
+
+  it("flashcards announces the revealed translation via aria-live on #word-en", () => {
+    const $ = readPage("games/flashcards");
+    const wordEn = $("#word-en");
+    expect(wordEn.length).toBe(1);
+    expect(wordEn.attr("aria-live")).toBe("polite");
+    // #flip-prompt is a static instruction, not a live status — must NOT carry aria-live
+    expect($("#flip-prompt").attr("aria-live")).toBeUndefined();
   });
 });
 
