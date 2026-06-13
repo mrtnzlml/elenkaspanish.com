@@ -51,7 +51,7 @@ Follow these rules strictly when making visual changes. Do NOT introduce new col
 
 - **Primary (only brand color):** `#004de5` (blue) — headings, buttons, links, icons, progress bars
 - **Background:** `#fefdf8` (cream) — body background
-- **White sections:** `bg-white` for alternating section backgrounds (WhyChoose, Pricing, Contact)
+- **White sections:** `bg-white` for alternating section backgrounds (WhyChoose, Pricing, FAQ)
 - **Text:** `text-gray-800` (body), `text-gray-600` (descriptions), `text-gray-500` (secondary/hints)
 - **Feedback:** `text-green-700` for correct, `text-red-600` for errors
 - **Do NOT add accent/secondary brand colors.** The site is intentionally monochromatic blue + cream.

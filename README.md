@@ -6,11 +6,8 @@ Built with [Astro](https://astro.build) + [Tailwind CSS](https://tailwindcss.com
 
 ## Pages
 
-- **Homepage** — hero, how it works, pricing, testimonials, contact, company teaser
-- **FAQ** — frequently asked questions
-- **For Companies** — corporate Spanish lesson packages
-- **Questionnaire** — embedded Google Form for student intake
-- **Practice** — 9 interactive Spanish learning games
+- **Homepage** (`/`) — hero, how it works, why choose, about Elena, pricing, testimonials, FAQ, ready-to-start CTA
+- **Practice** (`/games`) — 9 interactive Spanish learning games
 
 ## Development
 
@@ -18,9 +15,10 @@ Built with [Astro](https://astro.build) + [Tailwind CSS](https://tailwindcss.com
 npm install
 npm run dev       # http://localhost:4321
 npm run build     # production build → ./dist/
+npm test          # build + run vitest suite
 ```
 
-Requires Node.js >= 22.
+Requires Node.js >= 22.12.0.
 
 ## Deployment
 
