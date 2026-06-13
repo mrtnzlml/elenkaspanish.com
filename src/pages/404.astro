@@ -2,7 +2,11 @@
 import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout title="Page Not Found — Spanish with Elena Ramón">
+<Layout
+  title="Page Not Found — Spanish with Elena Ramón"
+  description="The page you're looking for isn't here. Head back to Elenka Spanish for online Spanish lessons and free practice games."
+  noindex={true}
+>
   <section class="max-w-2xl mx-auto px-6 py-24 text-center">
     <div class="w-24 h-24 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-8">
       <svg class="w-12 h-12 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
@@ -15,11 +19,19 @@ import Layout from "../layouts/Layout.astro";
     <p class="text-gray-500 mb-10">
       This page doesn't exist — but your Spanish adventure can still begin!
     </p>
-    <a
-      href="/"
-      class="bg-primary text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition-colors inline-block shadow-lg shadow-primary/20"
-    >
-      Back to Home
-    </a>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center items-center">
+      <a
+        href="/"
+        class="bg-primary text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-primary-dark transition-colors inline-block shadow-lg shadow-primary/20 w-full sm:w-auto"
+      >
+        Back to Home
+      </a>
+      <a
+        href="/games"
+        class="border border-primary text-primary px-8 py-4 rounded-xl font-bold text-lg hover:bg-primary/5 transition-colors inline-block w-full sm:w-auto"
+      >
+        Browse Practice Games
+      </a>
+    </div>
   </section>
 </Layout>

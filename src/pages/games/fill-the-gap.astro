@@ -1,9 +1,13 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import BookingCta from "../../components/BookingCta.astro";
 import { gapSentences } from "../../data/fill-the-gap";
 ---
 
-<Layout title="Fill the Gap — Spanish with Elena Ramón">
+<Layout
+  title="Fill the Gap — Spanish with Elena Ramón"
+  description="Choose the word that completes each Spanish sentence. A free grammar-in-context practice game from Elenka Spanish."
+>
   <section class="max-w-2xl mx-auto px-6 py-16">
     <div class="mb-8">
       <a href="/games" class="text-sm text-primary hover:underline">&larr; All Games</a>
@@ -28,7 +32,7 @@ import { gapSentences } from "../../data/fill-the-gap";
 
       <!-- Spanish sentence with gap -->
       <div class="p-8 rounded-2xl border-2 border-primary/20 bg-white shadow-sm text-center mb-8">
-        <p id="sentence" class="text-2xl font-bold text-gray-800"></p>
+        <p id="sentence" lang="es" class="text-2xl font-bold text-gray-800"></p>
       </div>
 
       <!-- Options -->
@@ -44,11 +48,8 @@ import { gapSentences } from "../../data/fill-the-gap";
       <h2 class="text-2xl font-bold text-primary mb-2">Round Complete!</h2>
       <p id="result-score" class="text-gray-600 mb-2"></p>
       <p id="result-detail" class="text-sm text-gray-500 mb-6"></p>
-      <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Play Again</button>
-      <div class="mt-8 pt-6 border-t border-gray-200">
-        <p class="text-sm text-gray-500 mb-3">Want to learn faster with a personal teacher?</p>
-        <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW" target="_blank" rel="noopener noreferrer" class="text-primary font-bold hover:underline text-sm">Book a free intro call with Elena</a>
-      </div>
+      <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-primary-dark transition-colors cursor-pointer">Play Again</button>
+      <BookingCta />
     </div>
   </section>
 
@@ -96,6 +97,7 @@ import { gapSentences } from "../../data/fill-the-gap";
       opts.forEach(opt => {
         const btn = document.createElement("button");
         btn.className = "px-4 py-4 rounded-lg border-2 border-gray-200 font-bold hover:border-primary/40 transition-colors text-sm cursor-pointer";
+        btn.lang = "es";
         btn.textContent = opt;
         btn.addEventListener("click", () => handleAnswer(opt, btn));
         optionsEl.appendChild(btn);
@@ -132,7 +134,12 @@ import { gapSentences } from "../../data/fill-the-gap";
           '<span class="text-red-600 line-through mr-1">' + answer + '</span>' +
           '<span class="text-green-700 font-bold">' + q.answer + '</span>' +
           (parts[1] || "");
-        feedback.textContent = "The answer is: " + q.answer;
+        feedback.textContent = "";
+        feedback.appendChild(document.createTextNode("The answer is: "));
+        const ansSpan = document.createElement("span");
+        ansSpan.lang = "es";
+        ansSpan.textContent = q.answer;
+        feedback.appendChild(ansSpan);
         feedback.className = "text-center text-sm h-5 font-bold text-red-600";
         $("btn-continue").classList.remove("hidden");
       }
@@ -146,10 +153,16 @@ import { gapSentences } from "../../data/fill-the-gap";
         results.classList.remove("hidden");
         const pct = Math.round(correct / deck.length * 100);
         $("result-score").textContent = correct + " out of " + deck.length + " correct (" + pct + "%)";
+        const detail = $("result-detail");
+        detail.textContent = "";
         if (mistakes.length) {
-          $("result-detail").textContent = "Review: " + mistakes.map(m => m.sentence.replace("___", m.answer)).join(" | ");
+          detail.appendChild(document.createTextNode("Review: "));
+          const reviewSpan = document.createElement("span");
+          reviewSpan.lang = "es";
+          reviewSpan.textContent = mistakes.map(m => m.sentence.replace("___", m.answer)).join(" | ");
+          detail.appendChild(reviewSpan);
         } else {
-          $("result-detail").textContent = "Perfect grammar!";
+          detail.textContent = "Perfect grammar!";
         }
         progressBar.style.width = "100%";
         progressBar.setAttribute("aria-valuenow", "100");

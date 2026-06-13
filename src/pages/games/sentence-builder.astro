@@ -1,9 +1,13 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import BookingCta from "../../components/BookingCta.astro";
 import { sentences } from "../../data/sentences";
 ---
 
-<Layout title="Sentence Builder — Spanish with Elena Ramón">
+<Layout
+  title="Sentence Builder — Spanish with Elena Ramón"
+  description="Unscramble Spanish sentences word by word. Free online practice for Spanish word order and sentence structure, by Elenka Spanish."
+>
   <section class="max-w-2xl mx-auto px-6 py-16">
     <div class="mb-8">
       <a href="/games" class="text-sm text-primary hover:underline">&larr; All Games</a>
@@ -34,7 +38,7 @@ import { sentences } from "../../data/sentences";
 
       <div class="flex gap-3 justify-center">
         <button id="btn-clear" class="px-4 py-2 rounded-lg text-sm font-bold border-2 border-gray-300 text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer">Clear</button>
-        <button id="btn-check" class="px-6 py-2 rounded-lg text-sm font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Check</button>
+        <button id="btn-check" class="px-6 py-2 rounded-lg text-sm font-bold bg-primary text-white hover:bg-primary-dark transition-colors cursor-pointer">Check</button>
       </div>
 
       <p id="feedback" class="text-center text-sm mt-4 h-5" aria-live="polite"></p>
@@ -46,11 +50,8 @@ import { sentences } from "../../data/sentences";
       <p class="text-5xl mb-4" aria-hidden="true">&#127881;</p>
       <h2 class="text-2xl font-bold text-primary mb-2">All Done!</h2>
       <p id="result-score" class="text-gray-600 mb-6"></p>
-      <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Play Again</button>
-      <div class="mt-8 pt-6 border-t border-gray-200">
-        <p class="text-sm text-gray-500 mb-3">Want to learn faster with a personal teacher?</p>
-        <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW" target="_blank" rel="noopener noreferrer" class="text-primary font-bold hover:underline text-sm">Book a free intro call with Elena</a>
-      </div>
+      <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-primary-dark transition-colors cursor-pointer">Play Again</button>
+      <BookingCta />
     </div>
   </section>
 
@@ -92,6 +93,7 @@ import { sentences } from "../../data/sentences";
       scrambled.forEach((word, i) => {
         const btn = document.createElement("button");
         btn.className = "px-4 py-3 rounded-lg border-2 border-gray-200 font-bold text-sm hover:border-primary/40 transition-colors cursor-pointer";
+        btn.lang = "es";
         btn.textContent = word;
         btn.dataset.word = word;
         btn.dataset.idx = String(i);
@@ -128,6 +130,7 @@ import { sentences } from "../../data/sentences";
         if (!srcBtn) return;
         const tag = document.createElement("span");
         tag.className = "px-4 py-2 rounded-lg bg-primary/10 border border-primary text-primary font-bold text-sm cursor-pointer";
+        tag.lang = "es";
         tag.textContent = srcBtn.dataset.word;
         tag.dataset.idx = idx;
         tag.addEventListener("click", () => {
@@ -154,7 +157,11 @@ import { sentences } from "../../data/sentences";
         answer.querySelectorAll("span").forEach(b => b.classList.add("border-green-500", "bg-green-50"));
         setTimeout(advance, 800);
       } else {
-        feedback.textContent = "Not quite — correct: " + s.es.join(" ");
+        const esSpan = document.createElement("span");
+        esSpan.lang = "es";
+        esSpan.textContent = s.es.join(" ");
+        feedback.textContent = "Not quite — correct: ";
+        feedback.appendChild(esSpan);
         feedback.className = "text-center text-sm mt-4 h-5 text-red-600 font-bold";
         answer.querySelectorAll("span").forEach(b => b.classList.add("border-red-400", "bg-red-50"));
         $("btn-continue").classList.remove("hidden");

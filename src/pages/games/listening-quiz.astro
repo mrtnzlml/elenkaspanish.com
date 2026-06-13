@@ -1,11 +1,15 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import BookingCta from "../../components/BookingCta.astro";
 import { categories } from "../../data/words";
 
 const allWords = categories.flatMap((c) => c.words);
 ---
 
-<Layout title="Listening Quiz — Spanish with Elena Ramón">
+<Layout
+  title="Listening Quiz — Spanish with Elena Ramón"
+  description="Train your Spanish listening: hear a word spoken aloud, then pick the correct English translation. Free audio practice from Elenka Spanish."
+>
   <section class="max-w-2xl mx-auto px-6 py-16">
     <div class="mb-8">
       <a href="/games" class="text-sm text-primary hover:underline">&larr; All Games</a>
@@ -29,7 +33,7 @@ const allWords = categories.flatMap((c) => c.words);
       </div>
 
       <div class="text-center mb-8">
-        <button id="btn-speak" class="w-24 h-24 rounded-full bg-primary text-white text-5xl hover:bg-blue-700 transition-colors shadow-lg mx-auto flex items-center justify-center cursor-pointer" aria-label="Listen to the word">
+        <button id="btn-speak" class="w-24 h-24 rounded-full bg-primary text-white text-5xl hover:bg-primary-dark transition-colors shadow-lg mx-auto flex items-center justify-center cursor-pointer" aria-label="Listen to the word">
           &#128266;
         </button>
         <div class="flex items-center justify-center gap-3 mt-3">
@@ -51,11 +55,8 @@ const allWords = categories.flatMap((c) => c.words);
       <p class="text-5xl mb-4" aria-hidden="true">&#127911;</p>
       <h2 class="text-2xl font-bold text-primary mb-2">Quiz Complete!</h2>
       <p id="result-score" class="text-gray-600 mb-6"></p>
-      <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Play Again</button>
-      <div class="mt-8 pt-6 border-t border-gray-200">
-        <p class="text-sm text-gray-500 mb-3">Want to learn faster with a personal teacher?</p>
-        <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW" target="_blank" rel="noopener noreferrer" class="text-primary font-bold hover:underline text-sm">Book a free intro call with Elena</a>
-      </div>
+      <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-primary-dark transition-colors cursor-pointer">Play Again</button>
+      <BookingCta />
     </div>
   </section>
 
@@ -168,16 +169,25 @@ const allWords = categories.flatMap((c) => c.words);
       answered = true;
       const allBtns = optionsEl.querySelectorAll("button");
 
+      const renderFeedback = () => {
+        const esSpan = document.createElement("span");
+        esSpan.lang = "es";
+        esSpan.textContent = currentWord.es;
+        feedback.textContent = "";
+        feedback.appendChild(esSpan);
+        feedback.appendChild(document.createTextNode(" = " + currentWord.en));
+      };
+
       if (answer === currentWord.en) {
         correct++;
         btn.classList.add("border-green-500", "bg-green-50");
-        feedback.textContent = currentWord.es + " = " + currentWord.en;
+        renderFeedback();
         feedback.className = "text-center text-sm h-5 text-green-700 font-bold";
         setTimeout(advanceNext, 800);
       } else {
         btn.classList.add("border-red-400", "bg-red-50");
         allBtns.forEach(b => { if (b.textContent === currentWord.en) b.classList.add("border-green-500", "bg-green-50"); });
-        feedback.textContent = currentWord.es + " = " + currentWord.en;
+        renderFeedback();
         feedback.className = "text-center text-sm h-5 text-red-600 font-bold";
         $("btn-continue").classList.remove("hidden");
       }

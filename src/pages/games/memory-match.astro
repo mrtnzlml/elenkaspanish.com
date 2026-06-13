@@ -1,12 +1,16 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import BookingCta from "../../components/BookingCta.astro";
 import { categories } from "../../data/words";
 
 // Pick 8 random pairs for a 4x4 grid
 const allWords = categories.flatMap((c) => c.words);
 ---
 
-<Layout title="Memory Match — Spanish with Elena Ramón">
+<Layout
+  title="Memory Match — Spanish with Elena Ramón"
+  description="Match Spanish and English word pairs in this free memory game. Build Spanish vocabulary one flip at a time with Elenka Spanish."
+>
   <section class="max-w-2xl mx-auto px-6 py-16">
     <div class="mb-8">
       <a href="/games" class="text-sm text-primary hover:underline">&larr; All Games</a>
@@ -25,11 +29,8 @@ const allWords = categories.flatMap((c) => c.words);
       <p class="text-5xl mb-4" aria-hidden="true">&#127942;</p>
       <h2 class="text-2xl font-bold text-primary mb-2">You Won!</h2>
       <p id="win-msg" class="text-gray-600 mb-6"></p>
-      <button id="btn-play-again" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Play Again</button>
-      <div class="mt-8 pt-6 border-t border-gray-200">
-        <p class="text-sm text-gray-500 mb-3">Want to learn faster with a personal teacher?</p>
-        <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW" target="_blank" rel="noopener noreferrer" class="text-primary font-bold hover:underline text-sm">Book a free intro call with Elena</a>
-      </div>
+      <button id="btn-play-again" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-primary-dark transition-colors cursor-pointer">Play Again</button>
+      <BookingCta />
     </div>
   </section>
 
@@ -63,6 +64,7 @@ const allWords = categories.flatMap((c) => c.words);
         btn.className = "h-16 sm:h-24 rounded-xl border-2 border-gray-200 bg-white text-xs sm:text-sm font-bold flex items-center justify-center p-2 text-center transition-all hover:border-primary/40 cursor-pointer select-none";
         btn.dataset.idx = String(idx);
         btn.textContent = "?";
+        btn.setAttribute("aria-label", `Hidden tile ${idx + 1} of ${tiles.length}`);
         btn.addEventListener("click", () => handleClick(idx, btn));
         grid.appendChild(btn);
       });
@@ -117,6 +119,8 @@ const allWords = categories.flatMap((c) => c.words);
       const card = cards[idx];
       btn.textContent = card.text;
       btn.dataset.revealed = "true";
+      btn.setAttribute("lang", card.lang);
+      btn.removeAttribute("aria-label");
       btn.classList.add(card.lang === "es" ? "text-primary" : "text-gray-800");
       btn.classList.add("border-primary/40");
     }
@@ -124,6 +128,8 @@ const allWords = categories.flatMap((c) => c.words);
     function hide(idx, btn) {
       btn.textContent = "?";
       btn.dataset.revealed = "false";
+      btn.removeAttribute("lang");
+      btn.setAttribute("aria-label", `Hidden tile ${idx + 1} of ${cards.length}`);
       btn.classList.remove("text-primary", "text-gray-800", "border-primary/40");
     }
 

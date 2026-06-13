@@ -1,9 +1,13 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import BookingCta from "../../components/BookingCta.astro";
 import { verbs } from "../../data/verbs";
 ---
 
-<Layout title="Verb Conjugation — Spanish with Elena Ramón">
+<Layout
+  title="Verb Conjugation — Spanish with Elena Ramón"
+  description="Practice Spanish verb conjugations by typing the correct form for any pronoun. A free conjugation drill from Elenka Spanish."
+>
   <section class="max-w-2xl mx-auto px-6 py-16">
     <div class="mb-8">
       <a href="/games" class="text-sm text-primary hover:underline">&larr; All Games</a>
@@ -21,8 +25,8 @@ import { verbs } from "../../data/verbs";
 
     <div id="game">
       <div class="p-8 rounded-2xl border-2 border-primary/20 bg-white shadow-sm text-center mb-6">
-        <p class="text-sm text-gray-500 mb-4">Conjugate this verb:</p>
-        <p id="verb-info" class="text-2xl font-bold text-primary mb-1"></p>
+        <p id="conjugate-prompt" class="text-sm text-gray-500 mb-4">Conjugate this verb:</p>
+        <p id="verb-info" lang="es" class="text-2xl font-bold text-primary mb-1"></p>
         <p id="verb-detail" class="text-sm text-gray-500"></p>
       </div>
 
@@ -30,13 +34,16 @@ import { verbs } from "../../data/verbs";
         <input
           id="answer-input"
           type="text"
-          class="w-full max-w-64 px-4 py-3 rounded-lg border-2 border-gray-200 text-center font-bold text-lg focus:outline-none focus:border-primary transition-colors"
+          lang="es"
+          class="w-full max-w-64 px-4 py-3 rounded-lg border-2 border-gray-200 text-center font-bold text-lg focus:border-primary transition-colors"
           placeholder="Type conjugation..."
+          aria-labelledby="conjugate-prompt"
+          aria-describedby="verb-info verb-detail"
           autocomplete="off"
           autocapitalize="off"
           spellcheck="false"
         />
-        <button id="btn-check" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Check</button>
+        <button id="btn-check" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-primary-dark transition-colors cursor-pointer">Check</button>
       </div>
       <p id="feedback" class="text-center text-sm h-5" aria-live="polite"></p>
       <button id="btn-continue" class="mt-4 mx-auto block px-6 py-2 rounded-lg font-bold border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors hidden cursor-pointer">Continue</button>
@@ -47,11 +54,8 @@ import { verbs } from "../../data/verbs";
       <h2 class="text-2xl font-bold text-primary mb-2">Round Complete!</h2>
       <p id="result-score" class="text-gray-600 mb-2"></p>
       <p id="result-mistakes" class="text-sm text-gray-500 mb-6"></p>
-      <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Play Again</button>
-      <div class="mt-8 pt-6 border-t border-gray-200">
-        <p class="text-sm text-gray-500 mb-3">Want to learn faster with a personal teacher?</p>
-        <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW" target="_blank" rel="noopener noreferrer" class="text-primary font-bold hover:underline text-sm">Book a free intro call with Elena</a>
-      </div>
+      <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-primary-dark transition-colors cursor-pointer">Play Again</button>
+      <BookingCta />
     </div>
   </section>
 
@@ -85,7 +89,11 @@ import { verbs } from "../../data/verbs";
     function showChallenge() {
       const v = deck[index];
       verbInfo.textContent = v.pronoun + " + " + v.infinitive;
-      verbDetail.textContent = "(" + v.meaning + " \u2014 " + v.tense + ")";
+      verbDetail.textContent = "";
+      const tenseSpan = document.createElement("span");
+      tenseSpan.lang = "es";
+      tenseSpan.textContent = v.tense;
+      verbDetail.append("(" + v.meaning + " \u2014 ", tenseSpan, ")");
       answerInput.value = "";
       answerInput.classList.remove("border-green-500", "border-red-400");
       answerInput.classList.add("border-gray-200");
@@ -123,7 +131,11 @@ import { verbs } from "../../data/verbs";
         results.classList.remove("hidden");
         $("result-score").textContent = correct + " out of " + deck.length + " correct!";
         if (mistakes.length) {
-          $("result-mistakes").textContent = "Review: " + mistakes.map(m => m.pronoun + " " + m.infinitive + " \u2192 " + m.answer).join(", ");
+          const span = document.createElement("span");
+          span.lang = "es";
+          span.textContent = mistakes.map(m => m.pronoun + " " + m.infinitive + " \u2192 " + m.answer).join(", ");
+          $("result-mistakes").textContent = "Review: ";
+          $("result-mistakes").appendChild(span);
         } else {
           $("result-mistakes").textContent = "Perfect conjugation!";
         }

@@ -1,11 +1,15 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import BookingCta from "../../components/BookingCta.astro";
 import { categories } from "../../data/words";
 
 const catMap = Object.fromEntries(categories.map((c) => [c.name, c.words]));
 ---
 
-<Layout title="Flashcards — Spanish with Elena Ramón">
+<Layout
+  title="Flashcards — Spanish with Elena Ramón"
+  description="Practice Spanish vocabulary with flip cards. Track what you know and what needs more review — a free vocabulary trainer from Elenka Spanish."
+>
   <section class="max-w-2xl mx-auto px-6 py-16">
     <div class="mb-8">
       <a href="/games" class="text-sm text-primary hover:underline">&larr; All Games</a>
@@ -47,12 +51,12 @@ const catMap = Object.fromEntries(categories.map((c) => [c.name, c.words]));
       <button id="flashcard" class="relative w-full h-64 cursor-pointer" aria-label="Flip card">
         <div id="card-inner" class="relative w-full h-full transition-transform duration-500" style="transform-style: preserve-3d;">
           <div class="absolute inset-0 rounded-2xl border-2 border-primary/20 bg-white shadow-lg flex flex-col items-center justify-center px-8 backface-hidden">
-            <span class="text-xs uppercase tracking-wider text-gray-500 mb-3">Español</span>
-            <span id="word-es" class="text-3xl font-bold text-primary text-center"></span>
+            <span lang="es" class="text-xs uppercase tracking-wider text-gray-500 mb-3">Español</span>
+            <span id="word-es" lang="es" class="text-3xl font-bold text-primary text-center"></span>
           </div>
           <div id="card-back" class="absolute inset-0 rounded-2xl border-2 border-primary/20 bg-primary shadow-lg flex flex-col items-center justify-center px-8 backface-hidden invisible" style="transform: rotateY(180deg);">
             <span class="text-xs uppercase tracking-wider text-blue-200 mb-3">English</span>
-            <span id="word-en" class="text-3xl font-bold text-white text-center"></span>
+            <span id="word-en" class="text-3xl font-bold text-white text-center" aria-live="polite"></span>
           </div>
         </div>
       </button>
@@ -63,7 +67,7 @@ const catMap = Object.fromEntries(categories.map((c) => [c.name, c.words]));
       <button id="btn-got-it" class="flex-1 max-w-[10rem] px-6 py-3 rounded-lg font-bold border-2 border-green-500 text-green-700 hover:bg-green-50 transition-colors cursor-pointer">Got it!</button>
     </div>
 
-    <p id="flip-prompt" class="text-center text-sm text-gray-500" aria-live="polite">Tap the card to reveal the answer</p>
+    <p id="flip-prompt" class="text-center text-sm text-gray-500">Tap the card to reveal the answer</p>
 
     <div id="results" class="text-center hidden">
       <p class="text-5xl mb-4" aria-hidden="true">&#127881;</p>
@@ -72,12 +76,9 @@ const catMap = Object.fromEntries(categories.map((c) => [c.name, c.words]));
       <p id="results-detail" class="text-sm text-gray-500 mb-6"></p>
       <div class="flex gap-4 justify-center">
         <button id="btn-retry-mistakes" class="px-6 py-3 rounded-lg font-bold border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors hidden cursor-pointer">Practice mistakes</button>
-        <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Play again</button>
+        <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-primary-dark transition-colors cursor-pointer">Play again</button>
       </div>
-      <div class="mt-8 pt-6 border-t border-gray-200">
-        <p class="text-sm text-gray-500 mb-3">Want to learn faster with a personal teacher?</p>
-        <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW" target="_blank" rel="noopener noreferrer" class="text-primary font-bold hover:underline text-sm">Book a free intro call with Elena</a>
-      </div>
+      <BookingCta />
     </div>
   </section>
 
@@ -107,7 +108,7 @@ const catMap = Object.fromEntries(categories.map((c) => [c.name, c.words]));
     function flipCard() { if(flipped) return; flipped=true; wordEn.textContent=deck[index].en; cardBack.classList.remove("invisible"); cardInner.style.transform="rotateY(180deg)"; actions.classList.remove("hidden"); flipPrompt.classList.add("hidden"); }
     function next(gotIt) { if(gotIt) correct++; else mistakes.push(deck[index]); index++; if(index>=deck.length) { clear(); showResults(); } else { save(); showCard(); } }
     function updateProgress() { const pct=Math.round(index/deck.length*100); progressBar.style.width=pct+"%"; progressBar.setAttribute("aria-valuenow",String(pct)); progressText.textContent=index+" / "+deck.length; }
-    function showResults() { cardContainer.classList.add("hidden"); actions.classList.add("hidden"); flipPrompt.classList.add("hidden"); results.classList.remove("hidden"); const pct=Math.round(correct/deck.length*100); resultsScore.textContent=correct+" out of "+deck.length+" correct ("+pct+"%)"; if(!mistakes.length){resultsDetail.textContent="Perfect score!";btnRetryMistakes.classList.add("hidden");}else{resultsDetail.textContent=mistakes.length+" to review: "+mistakes.map(m=>m.es).join(", ");btnRetryMistakes.classList.remove("hidden");} progressBar.style.width="100%"; progressBar.setAttribute("aria-valuenow","100"); progressText.textContent=deck.length+" / "+deck.length; }
+    function showResults() { cardContainer.classList.add("hidden"); actions.classList.add("hidden"); flipPrompt.classList.add("hidden"); results.classList.remove("hidden"); const pct=Math.round(correct/deck.length*100); resultsScore.textContent=correct+" out of "+deck.length+" correct ("+pct+"%)"; if(!mistakes.length){resultsDetail.textContent="Perfect score!";btnRetryMistakes.classList.add("hidden");}else{resultsDetail.textContent=mistakes.length+" to review: ";const esSpan=document.createElement("span");esSpan.setAttribute("lang","es");esSpan.textContent=mistakes.map(m=>m.es).join(", ");resultsDetail.appendChild(esSpan);btnRetryMistakes.classList.remove("hidden");} progressBar.style.width="100%"; progressBar.setAttribute("aria-valuenow","100"); progressText.textContent=deck.length+" / "+deck.length; }
 
     flashcard.addEventListener("click", flipCard);
     document.addEventListener("keydown", (e) => { if(e.key===" "||e.key==="Enter"){if(!flipped){e.preventDefault();flipCard();}}else if(flipped&&index<deck.length){if(e.key==="ArrowLeft"||e.key==="1")next(false);else if(e.key==="ArrowRight"||e.key==="2")next(true);} });

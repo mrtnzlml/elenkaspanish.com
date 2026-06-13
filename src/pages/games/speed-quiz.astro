@@ -1,11 +1,15 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import BookingCta from "../../components/BookingCta.astro";
 import { categories } from "../../data/words";
 
 const allWords = categories.flatMap((c) => c.words);
 ---
 
-<Layout title="Speed Quiz — Spanish with Elena Ramón">
+<Layout
+  title="Speed Quiz — Spanish with Elena Ramón"
+  description="Race the clock: translate as many Spanish words as you can in 60 seconds. A fast-paced free vocabulary drill from Elenka Spanish."
+>
   <section class="max-w-2xl mx-auto px-6 py-16">
     <div class="mb-8">
       <a href="/games" class="text-sm text-primary hover:underline">&larr; All Games</a>
@@ -16,7 +20,7 @@ const allWords = categories.flatMap((c) => c.words);
     <!-- Start screen -->
     <div id="start-screen" class="text-center">
       <p class="text-6xl mb-6" aria-hidden="true">&#9889;</p>
-      <button id="btn-start" class="px-8 py-4 rounded-lg font-bold bg-primary text-white text-lg hover:bg-blue-700 transition-colors cursor-pointer">Start!</button>
+      <button id="btn-start" class="px-8 py-4 rounded-lg font-bold bg-primary text-white text-lg hover:bg-primary-dark transition-colors cursor-pointer">Start!</button>
     </div>
 
     <!-- Quiz screen -->
@@ -33,7 +37,7 @@ const allWords = categories.flatMap((c) => c.words);
 
       <div class="text-center mb-8">
         <p class="text-xs uppercase tracking-wider text-gray-500 mb-2">Translate this Spanish word:</p>
-        <p id="quiz-word" class="text-3xl font-bold text-primary"></p>
+        <p id="quiz-word" lang="es" class="text-3xl font-bold text-primary"></p>
       </div>
 
       <div id="options" class="grid grid-cols-2 gap-3"></div>
@@ -46,11 +50,8 @@ const allWords = categories.flatMap((c) => c.words);
       <h2 class="text-2xl font-bold text-primary mb-2">Time's Up!</h2>
       <p id="final-score" class="text-gray-600 mb-1"></p>
       <p id="accuracy" class="text-sm text-gray-500 mb-6"></p>
-      <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-blue-700 transition-colors cursor-pointer">Play Again</button>
-      <div class="mt-8 pt-6 border-t border-gray-200">
-        <p class="text-sm text-gray-500 mb-3">Want to learn faster with a personal teacher?</p>
-        <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW" target="_blank" rel="noopener noreferrer" class="text-primary font-bold hover:underline text-sm">Book a free intro call with Elena</a>
-      </div>
+      <button id="btn-restart" class="px-6 py-3 rounded-lg font-bold bg-primary text-white hover:bg-primary-dark transition-colors cursor-pointer">Play Again</button>
+      <BookingCta />
     </div>
   </section>
 

@@ -1,74 +1,12 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-
-const games = [
-  {
-    title: "Flashcards",
-    description: "Flip cards to test your vocabulary. Track what you know and what needs practice.",
-    href: "/games/flashcards",
-    icon: "&#127183;",
-    color: "bg-blue-50",
-  },
-  {
-    title: "Memory Match",
-    description: "Find matching Spanish-English pairs in a grid of face-down cards.",
-    href: "/games/memory-match",
-    icon: "&#129504;",
-    color: "bg-purple-50",
-  },
-  {
-    title: "Speed Quiz",
-    description: "How many words can you translate in 60 seconds? Race the clock!",
-    href: "/games/speed-quiz",
-    icon: "&#9889;",
-    color: "bg-amber-50",
-  },
-  {
-    title: "Sentence Builder",
-    description: "Arrange scrambled Spanish words into the correct sentence order.",
-    href: "/games/sentence-builder",
-    icon: "&#128221;",
-    color: "bg-green-50",
-  },
-  {
-    title: "Verb Conjugation",
-    description: "Master Spanish verb forms. Given a verb and pronoun, type the conjugation.",
-    href: "/games/verb-conjugation",
-    icon: "&#9999;&#65039;",
-    color: "bg-rose-50",
-  },
-  {
-    title: "Listening Quiz",
-    description: "Hear a Spanish word spoken aloud, then pick the correct English translation.",
-    href: "/games/listening-quiz",
-    icon: "&#127911;",
-    color: "bg-cyan-50",
-  },
-  {
-    title: "Hangman",
-    description: "Guess the Spanish word letter by letter from an English clue.",
-    href: "/games/hangman",
-    icon: "&#128128;",
-    color: "bg-gray-50",
-  },
-  {
-    title: "Fill the Gap",
-    description: "Pick the correct word to complete a Spanish sentence. Tests grammar in context.",
-    href: "/games/fill-the-gap",
-    icon: "&#128300;",
-    color: "bg-indigo-50",
-  },
-  {
-    title: "Accent Fixer",
-    description: "Accents are missing! Click the right letters to add á, é, í, ó, ú, or ñ.",
-    href: "/games/accent-fixer",
-    icon: "&#9996;",
-    color: "bg-orange-50",
-  },
-];
+import { games } from "../../data/games";
 ---
 
-<Layout title="Games — Spanish with Elena Ramón">
+<Layout
+  title="Games — Spanish with Elena Ramón"
+  description="Free Spanish practice games: flashcards, hangman, verb conjugation, listening quizzes, and more. Learn vocabulary and grammar with Elenka Spanish."
+>
   <section class="max-w-4xl mx-auto px-6 py-16">
     <div class="text-center mb-10">
       <div class="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
@@ -102,6 +40,18 @@ const games = [
           </a>
         ))
       }
+    </div>
+
+    <div class="mt-16 pt-10 border-t border-gray-200 text-center">
+      <p class="text-gray-600 mb-5">Want to learn faster with a personal teacher?</p>
+      <a
+        href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-block bg-primary text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-primary/20 hover:bg-primary-dark transition-colors"
+      >
+        Book a free intro call with Elena
+      </a>
     </div>
   </section>
 </Layout>

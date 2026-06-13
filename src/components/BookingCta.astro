@@ -1,0 +1,51 @@
+---
+import { games } from "../data/games";
+
+const currentPath = Astro.url.pathname.replace(/\/$/, "");
+const currentIdx = games.findIndex((g) => g.href === currentPath);
+const related =
+  currentIdx === -1
+    ? games.slice(0, 3)
+    : [1, 2, 3].map((offset) => games[(currentIdx + offset) % games.length]);
+---
+
+<div class="mt-8 pt-6 border-t border-gray-200">
+  <p class="text-sm font-bold text-gray-800 mb-4">Try another game</p>
+  <ul class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 list-none p-0">
+    {
+      related.map((g) => (
+        <li>
+          <a
+            href={g.href}
+            class="group flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-white shadow-sm hover:border-primary/40 hover:shadow-md hover:-translate-y-0.5 transition-all h-full"
+          >
+            <span
+              class:list={[
+                "w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0",
+                g.color,
+              ]}
+              aria-hidden="true"
+              set:html={g.icon}
+            />
+            <span class="text-sm font-bold text-gray-800 group-hover:text-primary transition-colors">
+              {g.title}
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p class="text-sm text-gray-500 mb-3">Want to learn faster with a personal teacher?</p>
+  <a
+    href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="text-primary font-bold hover:underline text-sm"
+  >
+    Book a free intro call with Elena
+  </a>
+  <p class="text-sm text-gray-500 mt-4">
+    <a href="/games" class="hover:text-primary transition-colors">See all practice games &rarr;</a>
+  </p>
+</div>
