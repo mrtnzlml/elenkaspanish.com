@@ -44,6 +44,23 @@ function readPage(page: string): CheerioAPI {
   return load(readFileSync(p, "utf-8"));
 }
 
+function readBuiltCss(): string {
+  const dir = join(DIST, "_astro");
+  return readdirSync(dir)
+    .filter((f) => f.endsWith(".css"))
+    .map((f) => readFileSync(join(dir, f), "utf-8"))
+    .join("\n");
+}
+
+function readBuiltJs(): string {
+  const dir = join(DIST, "_astro");
+  if (!existsSync(dir)) return "";
+  return readdirSync(dir)
+    .filter((f) => f.endsWith(".js"))
+    .map((f) => readFileSync(join(dir, f), "utf-8"))
+    .join("\n");
+}
+
 // ---------------------------------------------------------------------------
 // Build output existence
 // ---------------------------------------------------------------------------
@@ -721,10 +738,12 @@ describe("homepage sections", () => {
     expect($("#hero").length).toBe(1);
   });
 
-  it("hero links to the games hub", () => {
+  it("homepage links to the games hub", () => {
+    // The Elena-centric hero (visual uplift) dropped the in-hero games link,
+    // but the games hub stays reachable via the global nav + footer.
     const $ = readPage("/");
-    const heroGamesLinks = $('#hero a[href="/games"]');
-    expect(heroGamesLinks.length).toBeGreaterThan(0);
+    const gamesLinks = $('a[href="/games"]');
+    expect(gamesLinks.length).toBeGreaterThan(0);
   });
 });
 
@@ -1022,4 +1041,120 @@ describe("external link safety", () => {
       });
     },
   );
+});
+
+// ---------------------------------------------------------------------------
+// Design system (visual uplift)
+// ---------------------------------------------------------------------------
+
+describe("design system (visual uplift)", () => {
+  it("tinted sections are full-bleed (tint on the full-width section, not a max-w container)", () => {
+    const $ = readPage("/");
+    const tinted = $("section[class*='tint-']");
+    expect(tinted.length).toBeGreaterThan(0);
+    tinted.each((_, el) => {
+      const cls = $(el).attr("class") || "";
+      expect(
+        cls,
+        `tinted section must be full-bleed, not max-w constrained: ${cls}`,
+      ).not.toMatch(/\bmax-w-/);
+    });
+  });
+  it("emits the warm palette tokens in built CSS", () => {
+    const css = readBuiltCss();
+    expect(css).toContain("#e3157b"); // rosa
+    expect(css).toContain("#c1502e"); // terracotta
+    expect(css).toContain("#0a7d7d"); // teal-dark
+  });
+  it("defines the three controlled keyframes and gates them on reduced-motion", () => {
+    const css = readBuiltCss();
+    expect(css).toMatch(/@keyframes flow/);
+    expect(css).toMatch(/@keyframes sway/);
+    expect(css).toMatch(/@keyframes rise/);
+    expect(css).toMatch(/prefers-reduced-motion/);
+  });
+  it("loads the Fraunces serif accent font on the homepage", () => {
+    const $ = readPage("/");
+    const head = $("head").html() ?? "";
+    expect(head).toMatch(/Fraunces/);
+  });
+  it("hero shows Elena's personal greeting and papel picado", () => {
+    const $ = readPage("/");
+    const hero = $("#hero");
+    expect(hero.text()).toMatch(/Hola, soy Elena/);
+    expect(hero.find(".picado, [class*='picado']").length).toBeGreaterThan(0);
+    expect(hero.find("a[href*='calendar.google.com']").length).toBeGreaterThan(0);
+  });
+  it("papel picado server-renders the default banner", () => {
+    const $ = readPage("/");
+    const flags = $(".picado .flag");
+    expect(flags.length).toBe(15);
+    const d = flags.first().find("path").attr("d") ?? "";
+    expect(d.startsWith("M0 0H40")).toBe(true);
+    expect(d).toContain("M20 8L26 16"); // rosette cut = default
+  });
+  it("ships the seasonal picado logic to the client", () => {
+    const all = readBuiltJs() + (readPage("/").html() ?? "");
+    expect(all).toContain("M13 11L17 15"); // calavera cut in client JS
+    expect(all).toContain("M20 6L23 12"); // nochebuena cut in client JS
+  });
+  it("ships the optimized cultural photo for the final CTA", () => {
+    expect(existsSync(join(DIST, "calle.avif"))).toBe(true);
+    expect(existsSync(join(DIST, "calle.webp"))).toBe(true);
+    expect(existsSync(join(DIST, "calle.jpg"))).toBe(true);
+  });
+  it("final CTA uses the cultural photo behind a scrim", () => {
+    const $ = readPage("/");
+    const html = $.html();
+    expect(html).toMatch(/calle\.(avif|webp|jpg)/);
+    expect($("a:contains('Schedule a free')").length).toBeGreaterThan(0);
+  });
+  it("Spanish words carry hover-swap English translations", () => {
+    const $ = readPage("/");
+    const tips = $(".es-tip");
+    expect(tips.length).toBeGreaterThanOrEqual(8);
+    tips.each((_, el) => {
+      const t = $(el);
+      expect(t.attr("tabindex"), "focusable for keyboard/tap").toBe("0");
+      expect(t.attr("lang")).toBe("es");
+      expect(t.find(".es-tip-es").length, "Spanish face present").toBe(1);
+      const en = t.find(".es-tip-en");
+      expect(en.length, "English face present").toBe(1);
+      expect(en.attr("lang")).toBe("en");
+      expect(en.text().trim()).not.toBe("");
+    });
+  });
+  it("aventura swaps to adventure in the headline", () => {
+    const $ = readPage("/");
+    expect($("h1 .es-tip .es-tip-es").text()).toContain("aventura");
+    expect($("h1 .es-tip .es-tip-en").text()).toContain("adventure");
+  });
+  it("cards on tinted sections have explicit white surfaces (mockup spec)", () => {
+    const $ = readPage("/");
+    const gridQuotes = $("#testimonials blockquote").filter(
+      (_, el) => !($(el).attr("class") ?? "").includes("bg-primary"),
+    );
+    expect(gridQuotes.length).toBeGreaterThanOrEqual(4);
+    gridQuotes.each((_, el) => expect($(el).attr("class")).toContain("bg-white"));
+    const benefitCards = $("#why-choose .grid > div");
+    expect(benefitCards.length).toBe(4);
+    benefitCards.each((_, el) => expect($(el).attr("class")).toContain("bg-white"));
+    const planCards = $("#pricing .grid > div");
+    expect(planCards.length).toBe(3);
+    planCards.each((_, el) => expect($(el).attr("class")).toContain("bg-white"));
+  });
+  it("the university proper noun is NOT tooltip-wrapped", () => {
+    const $ = readPage("/");
+    const uni = $("span[lang='es']:contains('Universidad')");
+    expect(uni.length).toBe(1);
+    expect(uni.closest(".es-tip").length).toBe(0);
+    expect(uni.find(".es-tip").length).toBe(0);
+  });
+  it("hero word-of-day card has swap targets and ships the daily-word logic", () => {
+    const $ = readPage("/");
+    expect($("#wod-es").text().trim()).toBe("la aventura"); // SSR fallback
+    expect($("#wod-en").text()).toContain("adventure");
+    const all = readBuiltJs() + ($.html() ?? "");
+    expect(all).toContain("wod-es");
+  });
 });

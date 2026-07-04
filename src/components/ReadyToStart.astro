@@ -1,34 +1,22 @@
 ---
+import EsTip from "./EsTip.astro";
+
 const bookingUrl =
   "https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW";
 ---
 
-<section class="bg-primary py-16 relative overflow-hidden">
-  <!-- Subtle diagonal stripes -->
-  <div class="absolute inset-0 opacity-[0.06]" aria-hidden="true">
-    <svg width="100%" height="100%">
-      <pattern id="stripes" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-        <line x1="0" y1="0" x2="0" y2="20" stroke="white" stroke-width="2" />
-      </pattern>
-      <rect width="100%" height="100%" fill="url(#stripes)" />
-    </svg>
-  </div>
-
-  <div class="max-w-4xl mx-auto px-6 text-center relative">
-    <p class="flex items-center justify-center gap-3 mb-3">
-      <span class="w-8 h-px bg-white/30" aria-hidden="true"></span>
-      <span class="text-base italic text-white/70">&#191;Listo para empezar?</span>
-      <span class="w-8 h-px bg-white/30" aria-hidden="true"></span>
-    </p>
-    <h2 class="text-2xl md:text-3xl font-bold text-white mb-8">
-      Ready to Start Your Spanish Adventure?
-    </h2>
-    <a
-      href={bookingUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="inline-block bg-white text-primary px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-all shadow-lg shadow-black/10"
-    >
+<section class="relative overflow-hidden text-center text-white">
+  <picture aria-hidden="true">
+    <source srcset="/calle.avif" type="image/avif" />
+    <source srcset="/calle.webp" type="image/webp" />
+    <img src="/calle.jpg" alt="" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover object-[center_40%]" />
+  </picture>
+  <div class="absolute inset-0" aria-hidden="true" style="background:linear-gradient(120deg,rgba(0,45,140,.9),rgba(150,16,82,.78) 55%,rgba(120,60,8,.8))"></div>
+  <div class="relative max-w-4xl mx-auto px-6 py-20">
+    <p class="mb-3" style="font-family:var(--font-serif);font-style:italic;color:rgba(255,255,255,.92)"><EsTip en="Ready to start?">¿Listo para empezar?</EsTip></p>
+    <h2 class="text-2xl md:text-3xl font-bold mb-8">Ready to Start Your Spanish Adventure?</h2>
+    <a href={bookingUrl} target="_blank" rel="noopener noreferrer"
+       class="inline-block bg-white text-primary px-8 py-4 rounded-[14px] font-bold hover:bg-gray-100 transition-all shadow-[0_14px_30px_rgba(0,0,0,.25)]">
       Schedule a free 20-minute call
     </a>
   </div>

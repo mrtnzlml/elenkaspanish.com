@@ -17,7 +17,7 @@ Requires Node.js >=22.12.0. Deployed to Cloudflare Pages (push to `main` trigger
 
 ## Architecture
 
-**Static site built with Astro 6 + Tailwind CSS 4.** Zero client-side JavaScript by default — games use inline `<script>` blocks with vanilla JS, no framework hydration.
+**Static site built with Astro 6 + Tailwind CSS 4.** Zero client-side JavaScript by default — games use inline `<script>` blocks with vanilla JS, no framework hydration. The homepage additionally ships three tiny progressive-enhancement scripts (seasonal papel-picado swap, daily word-of-the-day, EsTip width measurement); with JS disabled it renders the year-round banner, the fallback word, and Spanish-sized swap boxes.
 
 ### Key directories
 
@@ -49,18 +49,16 @@ Follow these rules strictly when making visual changes. Do NOT introduce new col
 
 ### Color palette
 
-- **Primary (only brand color):** `#004de5` (blue) — headings, buttons, links, icons, progress bars
-- **Background:** `#fefdf8` (cream) — body background
-- **White sections:** `bg-white` for alternating section backgrounds (WhyChoose, Pricing, FAQ)
-- **Text:** `text-gray-800` (body), `text-gray-600` (descriptions), `text-gray-500` (secondary/hints)
-- **Feedback:** `text-green-700` for correct, `text-red-600` for errors
-- **Do NOT add accent/secondary brand colors.** The site is intentionally monochromatic blue + cream.
-
-All text colors must meet **WCAG AA** contrast. Minimum: `text-gray-500` on cream/white backgrounds. Never use `text-gray-400` or lighter for readable text.
+- **Primary / brand anchor:** `#004de5` (blue) — brand, links, headings, primary blue CTAs, `theme-color`, JSON-LD. Do not change the brand blue (favicons/manifest/OG depend on it).
+- **Background:** `#fefdf8` (cream) base; soft warm tints per section (`.tint-peach/.tint-rosa/.tint-warm/.tint-teal/.tint-mist/.tint-amber` in `global.css`).
+- **Warm accents (Mexican palette):** rosa `#e3157b`, marigold `#f7a008`, amber `#ffb703`, terracotta `#c1502e`, teal `#0f9b9b`, teal-dark `#0a7d7d`. Use as accents, not fills — at most one dominant accent per section.
+- **WCAG AA accent rules (enforced):** text-safe accents are blue, ink `#16243f`, terracotta (4.71:1), rosa (4.51:1), teal-dark (4.95:1). Teal `#0f9b9b` is large-text/icons/borders only. **Marigold/amber are decorative only (gradients/fills/chip backgrounds) — never text or contrast-critical icons on light.** Body/secondary text stays `text-gray-800/600/500`. Never `text-gray-400` or lighter.
+- **Feedback:** `text-green-700` correct, `text-red-600` errors (unchanged).
 
 ### Typography
 
 - **Font:** Manrope (400 + 700 weights only), defined in `src/styles/global.css`
+- **Serif accent:** Fraunces (italic) via Google Fonts — used for the "Hola, soy Elena" greeting, accent words (e.g. *aventura*), and section eyebrows. Manrope remains the body/heading font.
 - **Headings:** `font-bold text-primary`. Page h1: `text-3xl md:text-4xl`. Section h2: `text-2xl md:text-3xl`.
 - **Body text:** `text-gray-600 leading-relaxed`
 
@@ -78,6 +76,14 @@ All text colors must meet **WCAG AA** contrast. Minimum: `text-gray-500` on crea
 - **Standard buttons:** `px-6 py-3 rounded-lg font-bold`
 - **Decorative elements:** Use `bg-primary/5` or `bg-primary/10` blobs/patterns, always `aria-hidden="true"`
 - **Icons:** Heroicons (outline, stroke-width 1.5). Icon containers: `bg-primary/10 rounded-xl`
+
+### Motion & cultural elements
+
+- **Motion is minimal and gated:** only `rise` (hero fade-up), `sway` (papel picado), and `flow` (CTA gradient) keyframes, all disabled under `@media (prefers-reduced-motion: reduce)`. Do not add ambient motion without the guard.
+- **Papel picado:** the `PapelPicado.astro` SVG banner is the signature cultural motif (hero). The talavera diagonal-stripe motif was considered and intentionally removed — do not reintroduce it.
+- **Cultural photography:** license-free (Unsplash/Pexels) + Elena's own portrait; optimized to AVIF/WebP/JPG via `scripts/optimize-images.mjs`; served with plain `<img>`/`<picture>` (never astro:assets/sharp — breaks CF Pages).
+- **Seasonal papel picado:** variants (cuts + palettes + date windows) live in `src/data/picado-seasons.ts` — patrias Sep 1–30, muertos Oct 15–Nov 8, navidad Nov 15–Jan 8; `PapelPicado.astro` swaps them client-side from the visitor's date. Add new holidays there, not in the component.
+- **Inline Spanish:** wrap any Spanish word/phrase inside English copy in `<EsTip en="…">` (`src/components/EsTip.astro`) — on hover/focus/tap the word morphs into its English translation: a measure script records both faces' widths so the box width animates and neighbors glide aside (reduced-motion-gated, correct `lang` tags on both faces; no-JS falls back to a Spanish-sized box). Proper nouns keep a plain `lang="es"` span, no translation.
 
 ### Mobile optimization
 

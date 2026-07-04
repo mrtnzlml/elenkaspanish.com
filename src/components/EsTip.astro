@@ -1,0 +1,104 @@
+---
+/**
+ * Inline Spanish word/phrase that morphs into its English translation on
+ * hover, keyboard focus, or tap (tabindex makes taps focus it). A tiny
+ * measure script records both faces' widths (per current font/breakpoint)
+ * so the box width animates es→en during the swap: at rest the line spacing
+ * is exactly the Spanish word's, and while swapped the neighbors glide aside
+ * instead of being overlapped. Without JS the box stays Spanish-sized and
+ * the English face overlays it. Screen readers hear "spanish, english"
+ * inline (an intentional gloss), each with the right lang.
+ * Usage: <EsTip en="chat">charla</EsTip>
+ */
+interface Props {
+  en: string;
+}
+const { en } = Astro.props;
+---
+
+<script>
+  // NOTE: this script block must stay BEFORE the root span. Astro renders it
+  // inline at the component's first usage (mid-sentence in the hero h1), and
+  // the whitespace around it becomes a text node: placed before the word it
+  // collapses into the preceding space; placed after, it renders as a stray
+  // gap between the word and the following punctuation.
+  const tips = document.querySelectorAll<HTMLElement>(".es-tip");
+  const measure = (tip: HTMLElement) => {
+    const es = tip.querySelector<HTMLElement>(".es-tip-es");
+    const en = tip.querySelector<HTMLElement>(".es-tip-en");
+    if (!es || !en) return;
+    tip.style.setProperty("--tip-es-w", `${es.getBoundingClientRect().width}px`);
+    tip.style.setProperty("--tip-en-w", `${en.getBoundingClientRect().width}px`);
+    tip.classList.add("es-tip--measured");
+  };
+  document.fonts.ready.then(() => {
+    tips.forEach((tip) => {
+      measure(tip);
+      const es = tip.querySelector(".es-tip-es");
+      // Re-measure when the face's size changes (responsive font sizes).
+      if (es) new ResizeObserver(() => measure(tip)).observe(es);
+    });
+  });
+</script><span class="es-tip" lang="es" tabindex="0"><span class="es-tip-es"><slot /></span><span
+    class="es-tip-en"
+    lang="en">{en}</span></span>
+
+<style>
+  .es-tip {
+    display: inline-block;
+    position: relative;
+    white-space: nowrap;
+    outline-offset: 3px;
+  }
+  .es-tip--measured {
+    width: var(--tip-es-w);
+    transition: width 0.25s ease;
+  }
+  .es-tip--measured:hover,
+  .es-tip--measured:focus {
+    width: var(--tip-en-w);
+  }
+  .es-tip-es {
+    display: inline-block;
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s ease;
+  }
+  .es-tip-en {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(calc(-50% + 0.35em));
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s ease;
+  }
+  .es-tip:hover .es-tip-es,
+  .es-tip:focus .es-tip-es {
+    opacity: 0;
+    transform: translateY(-0.35em);
+  }
+  .es-tip:hover .es-tip-en,
+  .es-tip:focus .es-tip-en {
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .es-tip--measured,
+    .es-tip-es,
+    .es-tip-en {
+      transition: none;
+    }
+    /* keep the vertical centering; drop only the motion offset */
+    .es-tip-en {
+      transform: translateY(-50%);
+    }
+    .es-tip:hover .es-tip-es,
+    .es-tip:focus .es-tip-es {
+      transform: none;
+    }
+  }
+</style>

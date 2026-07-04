@@ -1,4 +1,6 @@
 ---
+import EsTip from "./EsTip.astro";
+
 const bookingUrl =
   "https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW";
 
@@ -117,12 +119,12 @@ const courseJsonLd = {
 
 <script type="application/ld+json" set:html={JSON.stringify(courseJsonLd)} />
 
-<section id="pricing" class="bg-white py-16">
+<section id="pricing" class="tint-mist py-16">
   <div class="max-w-5xl mx-auto px-6 text-center">
     <h2 class="text-2xl md:text-3xl font-bold text-primary mb-3">Pricing</h2>
     <p class="flex items-center justify-center gap-3 mb-3">
       <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
-      <span lang="es" class="text-base italic text-primary/50">Precios</span>
+      <span class="text-base italic text-primary/50"><EsTip en="Prices">Precios</EsTip></span>
       <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
     </p>
     <p class="text-gray-500 mb-4">All lessons are 55 minutes via Google Meet. Sold in packages of 4.</p>
@@ -140,14 +142,20 @@ const courseJsonLd = {
         plans.map((plan) => (
           <div
             class:list={[
-              "relative rounded-xl p-6 flex flex-col text-left overflow-hidden",
+              "relative rounded-xl p-6 bg-white flex flex-col text-left overflow-hidden",
               plan.highlighted
-                ? "border-2 border-primary shadow-lg bg-cream md:scale-[1.03] relative z-10"
+                ? "border-2 border-primary shadow-lg md:scale-[1.03] relative z-10"
                 : "border border-gray-200 shadow-sm",
             ]}
           >
             {plan.badge && (
-              <span class="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
+              <span
+                class:list={[
+                  "absolute top-0 right-0 text-xs font-bold px-3 py-1 rounded-bl-xl",
+                  plan.highlighted ? "" : "bg-primary text-white",
+                ]}
+                style={plan.highlighted ? "background:var(--color-marigold);color:#3a2400" : undefined}
+              >
                 {plan.badge}
               </span>
             )}

@@ -1,4 +1,6 @@
 ---
+import EsTip from "./EsTip.astro";
+
 const benefits = [
   {
     icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />',
@@ -25,35 +27,48 @@ const benefits = [
       "All you need is an internet connection and a desire to learn. Classes happen via Google Meet — from your home, office, or anywhere you travel.",
   },
 ];
+
+// Per-card accent colors (decorative top-border + icon chip), by card order 1→4.
+// Marigold appears only as a 4px border + icon glyph (never as text) — AA-safe.
+const cardAccents = [
+  { borderTop: "var(--color-marigold)", chip: "rgba(247,160,8,.16)", icon: "var(--color-marigold)" },
+  { borderTop: "var(--color-rosa)", chip: "rgba(227,21,123,.12)", icon: "var(--color-rosa)" },
+  { borderTop: "var(--color-teal)", chip: "rgba(15,155,155,.16)", icon: "var(--color-teal)" },
+  { borderTop: "var(--color-terracotta)", chip: "rgba(193,80,46,.14)", icon: "var(--color-terracotta)" },
+];
 ---
 
-<section id="why-choose" class="bg-white py-16">
+<section id="why-choose" class="tint-rosa py-16">
   <div class="max-w-4xl mx-auto px-6">
     <h2 class="text-2xl md:text-3xl font-bold text-center text-primary mb-3">
       Why Choose Spanish with Elena Ram&oacute;n
     </h2>
     <p class="flex items-center justify-center gap-3 mb-12">
-      <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
-      <span lang="es" class="text-base italic text-primary/50">&#191;Por qu&eacute; elegirme?</span>
-      <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
+      <span class="w-8 h-px bg-rosa/40" aria-hidden="true"></span>
+      <span class="text-base" style="font-family:var(--font-serif);font-style:italic;color:var(--color-rosa)"><EsTip en="Why choose me?">&#191;Por qu&eacute; elegirme?</EsTip></span>
+      <span class="w-8 h-px bg-rosa/40" aria-hidden="true"></span>
     </p>
     <div class="grid md:grid-cols-3 gap-8">
       {
         benefits.map((b, i) => (
           <div
             class:list={[
-              "p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group",
+              "p-6 rounded-xl border border-gray-200 border-t-4 bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group",
               i === 0 ? "md:col-span-3" : "",
             ]}
+            style={`border-top-color:${cardAccents[i].borderTop}`}
           >
             <div class:list={[
               i === 0 ? "flex flex-col md:flex-row md:items-start gap-4 md:gap-6" : "flex flex-col",
             ]}>
-              <div class:list={[
-                "w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors",
-                i === 0 ? "mb-4 md:mb-0" : "mb-4",
-              ]}>
-                <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+              <div
+                class:list={[
+                  "w-12 h-12 rounded-xl flex items-center justify-center shrink-0",
+                  i === 0 ? "mb-4 md:mb-0" : "mb-4",
+                ]}
+                style={`background:${cardAccents[i].chip}`}
+              >
+                <svg class="w-6 h-6" style={`color:${cardAccents[i].icon}`} fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                   <Fragment set:html={b.icon} />
                 </svg>
               </div>

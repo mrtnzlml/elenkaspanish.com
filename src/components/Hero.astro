@@ -1,73 +1,52 @@
 ---
+import PapelPicado from "./PapelPicado.astro";
+import EsTip from "./EsTip.astro";
+
 const bookingUrl =
   "https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ38hp0IO46XB7FQXk_vZXUAaaMVejyjSFGxa-NanSFJbN9S2_Asp_kl-_YddbRWDI3HbtKwGgcW";
 ---
 
-<section id="hero" class="relative overflow-hidden">
-  <!-- Decorative background -->
-  <div class="absolute inset-0 -z-10" aria-hidden="true">
-    <div class="absolute inset-0 opacity-[0.03]">
-      <svg width="100%" height="100%">
-        <pattern id="dots" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
-          <circle cx="2" cy="2" r="1.5" fill="#004de5" />
-        </pattern>
-        <rect width="100%" height="100%" fill="url(#dots)" />
-      </svg>
-    </div>
-    <div class="absolute -top-32 -left-32 w-96 h-96 bg-primary/10 rounded-full blur-[100px]"></div>
-    <div class="absolute -bottom-32 -right-32 w-[30rem] h-[30rem] bg-primary/8 rounded-full blur-[100px]"></div>
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40rem] h-[40rem] bg-primary/[0.03] rounded-full blur-[80px]"></div>
-  </div>
-
-  <div class="max-w-4xl mx-auto px-6 py-20 md:py-28">
+<section id="hero" class="relative overflow-hidden" style="background:radial-gradient(120% 100% at 85% 0%,#fff6ea 0%,rgba(255,246,234,0) 55%),linear-gradient(180deg,var(--color-cream),#fff)">
+  <PapelPicado />
+  <div class="max-w-4xl mx-auto px-6 pt-6 pb-20 md:pb-24">
     <div class="flex flex-col md:flex-row md:items-center md:gap-12">
-      <!-- Text content -->
       <div class="flex-1 text-center md:text-left">
-        <p class="inline-block text-sm font-bold uppercase tracking-widest text-primary/70 mb-4 px-4 py-1.5 rounded-full bg-primary/[0.07]">
-          Elena María Ramón Martínez
+        <p class="rise d1" style="font-family:var(--font-serif);font-style:italic;font-weight:600;color:var(--color-rosa);font-size:1.4rem;margin-bottom:.5rem">
+          Hola, soy Elena <span aria-hidden="true" style="font-family:var(--font-sans);font-style:normal">✿</span>
         </p>
-        <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-primary mb-6 leading-tight">
-          Your Spanish,<br />Your Adventure.
+        <h1 class="rise d2 text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight" style="color:var(--color-ink)">
+          Your Spanish,<br />your <span class="accent-underline" style="font-family:var(--font-serif);font-style:italic;font-weight:600;color:var(--color-primary)"><EsTip en="adventure">aventura</EsTip></span>.
         </h1>
-        <p class="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed">
+        <p class="rise d3 text-lg md:text-xl text-gray-600 mb-8 leading-relaxed">
           Personalized 1-on-1 lessons with a native Mexican teacher.
           Whether it's for travel, work, or love — your plan is built around your goals.
         </p>
-
-        <!-- Primary CTA -->
-        <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start mb-5">
-          <a
-            href={bookingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-block bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-primary-dark transition-all shadow-lg shadow-primary/20"
-          >
+        <div class="rise d4 flex flex-col sm:flex-row gap-4 justify-center md:justify-start mb-5">
+          <a href={bookingUrl} target="_blank" rel="noopener noreferrer"
+             class="cta-fiesta inline-block text-white px-6 py-3 rounded-xl font-bold transition-transform hover:-translate-y-0.5" style="box-shadow:0 12px 26px -6px rgba(227,21,123,.45)">
             Book a free intro call
           </a>
-          <a
-            href="https://wa.me/420773710520?text=Hi%20Elena%2C%20I%27m%20interested%20in%20Spanish%20lessons!"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center justify-center gap-2 border-2 border-primary text-primary px-6 py-3 rounded-xl font-bold hover:bg-primary hover:text-white transition-all"
-          >
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-            </svg>
+          <a href="https://wa.me/420773710520?text=Hi%20Elena%2C%20I%27m%20interested%20in%20Spanish%20lessons!" target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center justify-center gap-2 border-2 border-teal/40 text-teal-dark bg-white/50 px-6 py-3 rounded-xl font-bold hover:border-teal hover:-translate-y-0.5 transition-all">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="#25D366" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
             Message on WhatsApp
           </a>
         </div>
-        <p class="text-sm text-gray-500">
-          No commitment — just a friendly chat about your goals
-        </p>
-        <p class="text-sm text-gray-500 mt-2">
-          Or <a href="/games" class="text-primary font-bold hover:underline">try a free practice game first &rarr;</a>
-        </p>
+        <p class="rise d5 text-sm text-gray-500">No commitment — just a friendly chat about your goals</p>
+        <div class="rise d5 flex flex-wrap justify-center md:justify-start gap-6 md:gap-10 mt-8 pt-6 border-t border-gray-200/70">
+          <div class="text-center"><p class="text-2xl md:text-3xl font-bold" style="color:var(--color-primary)">50+</p><p class="text-xs text-gray-500 uppercase tracking-wider">Happy students</p></div>
+          <div class="text-center"><p class="text-2xl md:text-3xl font-bold" style="color:var(--color-teal)">A0–C2</p><p class="text-xs text-gray-500 uppercase tracking-wider">All levels</p></div>
+          <div class="text-center"><p class="text-2xl md:text-3xl font-bold" style="color:var(--color-rosa)">100%</p><p class="text-xs text-gray-500 uppercase tracking-wider">Online</p></div>
+        </div>
       </div>
 
-      <!-- Elena's photo -->
       <div class="mt-10 md:mt-0 flex justify-center shrink-0">
-        <div class="relative">
-          <div class="absolute -inset-3 bg-primary/[0.08] rounded-2xl rotate-3" aria-hidden="true"></div>
+        <div class="relative rise d3">
+          <div class="absolute -inset-6 rounded-full -z-10" style="background:radial-gradient(circle,rgba(247,160,8,.32),transparent 66%)" aria-hidden="true"></div>
+          <div class="absolute -top-3.5 -left-[18px] z-10 bg-white rounded-[14px] px-3.5 py-[9px] text-left shadow-[0_10px_26px_rgba(0,0,0,.14)]" aria-hidden="true">
+            <p class="font-bold text-[0.9rem]" style="color:var(--color-rosa)">¡Hola!</p>
+            <p class="text-[0.72rem] text-gray-500">¿Listo para aprender?</p>
+          </div>
           <picture>
             <source srcset="/elena-square.avif" type="image/avif" />
             <source srcset="/elena-square.webp" type="image/webp" />
@@ -77,31 +56,27 @@ const bookingUrl =
               width="512"
               height="512"
               fetchpriority="high"
-              class="relative w-52 h-52 md:w-64 md:h-64 object-cover rounded-2xl shadow-lg"
+              class="relative w-64 h-72 md:w-[300px] md:h-[340px] object-cover object-top rounded-3xl border-[6px] border-white shadow-[0_28px_60px_-24px_rgba(80,40,10,.5)]"
             />
           </picture>
-          <div class="absolute -bottom-3 -right-3 bg-white rounded-xl shadow-md px-4 py-2" aria-hidden="true">
-            <p class="font-bold text-primary text-sm">&#161;Hola!</p>
-            <p class="text-gray-500 text-xs">&#191;Listo para aprender?</p>
+          <div class="absolute -bottom-4 -right-4 bg-white rounded-xl shadow-md px-4 py-3 text-left" aria-hidden="true">
+            <p class="text-[0.6rem] font-bold uppercase tracking-widest text-gray-500 mb-0.5">Word of the day</p>
+            <p id="wod-es" style="font-family:var(--font-serif);font-style:italic;font-weight:600;color:var(--color-ink)">la aventura</p>
+            <p id="wod-en" class="text-xs font-bold" style="color:var(--color-teal-dark)">→ adventure</p>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Social proof -->
-    <div class="flex flex-wrap justify-center gap-6 md:gap-10 mt-12 pt-8 border-t border-gray-200/60">
-      <div class="text-center">
-        <p class="text-2xl md:text-3xl font-bold text-primary">50+</p>
-        <p class="text-xs text-gray-500 uppercase tracking-wider">Happy students</p>
-      </div>
-      <div class="text-center">
-        <p class="text-2xl md:text-3xl font-bold text-primary">A0&ndash;C2</p>
-        <p class="text-xs text-gray-500 uppercase tracking-wider">All levels</p>
-      </div>
-      <div class="text-center">
-        <p class="text-2xl md:text-3xl font-bold text-primary">100%</p>
-        <p class="text-xs text-gray-500 uppercase tracking-wider">Online</p>
-      </div>
-    </div>
   </div>
 </section>
+
+<script>
+  import { wordOfTheDay } from "../data/words";
+  const w = wordOfTheDay(new Date());
+  const es = document.getElementById("wod-es");
+  const en = document.getElementById("wod-en");
+  if (es && en) {
+    es.textContent = w.es;
+    en.textContent = `→ ${w.en}`;
+  }
+</script>

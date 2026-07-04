@@ -4,7 +4,8 @@
 // Uses `sharp` (already a transitive dep via Astro).
 
 import sharp from "sharp";
-import { stat } from "node:fs/promises";
+import { stat, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dirname, "..");
@@ -77,6 +78,39 @@ for (const t of targets) {
   console.log(`${t.src}: ${kb(srcSize)} (source)`);
   console.log(`  → ${t.webp}: ${kb(webpSize)} (${pct(webpSize)} smaller)`);
   console.log(`  → ${t.avif}: ${kb(avifSize)} (${pct(avifSize)} smaller)`);
+}
+
+// public/calle.* — Unsplash photo-1518105779142-d975f22f1b0a (Unsplash License)
+// Cultural hero photo (colorful colonial Mexican street) used by the final CTA.
+// The source is a license-free Unsplash photo rather than a file in public/, so
+// we fetch it on demand (cached at /tmp) and crop to a 1600×900 16:9 banner.
+// Same resize/quality settings as the one-off generation that produced the
+// committed variants, so re-running this reproduces them byte-for-byte-ish.
+{
+  const UNSPLASH_ID = "photo-1518105779142-d975f22f1b0a";
+  const srcUrl = `https://images.unsplash.com/${UNSPLASH_ID}?w=1600&q=80&auto=format&fit=crop`;
+  const srcPath = "/tmp/calle-src.jpg";
+  const resize = { fit: "cover", position: "centre" };
+
+  if (!existsSync(srcPath)) {
+    const res = await fetch(srcUrl);
+    if (!res.ok) throw new Error(`Failed to fetch ${srcUrl}: ${res.status}`);
+    await writeFile(srcPath, Buffer.from(await res.arrayBuffer()));
+  }
+
+  const avifPath = resolve(ROOT, "public/calle.avif");
+  const webpPath = resolve(ROOT, "public/calle.webp");
+  const jpgPath = resolve(ROOT, "public/calle.jpg");
+
+  await sharp(srcPath).resize(1600, 900, resize).avif({ quality: 55 }).toFile(avifPath);
+  await sharp(srcPath).resize(1600, 900, resize).webp({ quality: 80 }).toFile(webpPath);
+  await sharp(srcPath).resize(1600, 900, resize).jpeg({ quality: 82, mozjpeg: true }).toFile(jpgPath);
+
+  const srcSize = (await stat(srcPath)).size;
+  console.log(`public/calle.* [1600×900 cover] from Unsplash ${UNSPLASH_ID}: ${kb(srcSize)} (source)`);
+  console.log(`  → public/calle.avif: ${kb((await stat(avifPath)).size)}`);
+  console.log(`  → public/calle.webp: ${kb((await stat(webpPath)).size)}`);
+  console.log(`  → public/calle.jpg: ${kb((await stat(jpgPath)).size)}`);
 }
 
 for (const f of favicons) {

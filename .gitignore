@@ -28,3 +28,6 @@ pnpm-debug.log*
 
 # Xcode / SwiftPM
 .swiftpm/
+
+# Visual brainstorming companion artifacts
+.superpowers/

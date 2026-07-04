@@ -129,3 +129,14 @@ export function shuffle<T>(arr: T[]): T[] {
 export function getAllWords(): WordPair[] {
   return categories.flatMap((c) => c.words);
 }
+
+/**
+ * Deterministic "word of the day": indexes the flattened pool by UTC day
+ * number, so every visitor sees the same pair on a given UTC day and the
+ * pool cycles with no repeats within a cycle.
+ */
+export function wordOfTheDay(date: Date): WordPair {
+  const pool = getAllWords();
+  const day = Math.floor(date.getTime() / 86_400_000);
+  return pool[((day % pool.length) + pool.length) % pool.length];
+}

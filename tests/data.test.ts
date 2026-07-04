@@ -1,9 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { categories, getAllWords, shuffle } from "../src/data/words";
+import { categories, getAllWords, shuffle, wordOfTheDay } from "../src/data/words";
 import { sentences } from "../src/data/sentences";
 import { verbs } from "../src/data/verbs";
 import { accentWords } from "../src/data/accents";
 import { gapSentences } from "../src/data/fill-the-gap";
+import { seasons, seasonFor, FLAG_BASE, DEFAULT_CUT } from "../src/data/picado-seasons";
 
 // ---------------------------------------------------------------------------
 // words.ts
@@ -72,6 +73,25 @@ describe("words.ts", () => {
       const total = categories.reduce((s, c) => s + c.words.length, 0);
       expect(getAllWords()).toHaveLength(total);
     });
+  });
+});
+
+describe("wordOfTheDay", () => {
+  const DAY = 86_400_000;
+  it("is deterministic within a UTC day", () => {
+    expect(wordOfTheDay(new Date("2026-07-04T00:00:01Z"))).toEqual(
+      wordOfTheDay(new Date("2026-07-04T23:59:59Z")),
+    );
+  });
+  it("returns a pair from the pool", () => {
+    expect(getAllWords()).toContainEqual(wordOfTheDay(new Date("2026-01-15T12:00:00Z")));
+  });
+  it("changes on consecutive days and cycles after the pool length", () => {
+    const d0 = new Date("2026-03-01T12:00:00Z");
+    const d1 = new Date(d0.getTime() + DAY);
+    const dn = new Date(d0.getTime() + getAllWords().length * DAY);
+    expect(wordOfTheDay(d0)).not.toEqual(wordOfTheDay(d1));
+    expect(wordOfTheDay(dn)).toEqual(wordOfTheDay(d0));
   });
 });
 
@@ -237,6 +257,42 @@ describe("fill-the-gap.ts", () => {
       const dupes = lower.filter((d, i) => lower.indexOf(d) !== i);
       expect(dupes, `"${q.en}" has duplicate distractors`).toEqual([]);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// picado-seasons.ts
+// ---------------------------------------------------------------------------
+describe("picado-seasons.ts", () => {
+  const d = (iso: string) => new Date(iso + "T12:00:00");
+  it("every season has a name, cut, colors, and window", () => {
+    expect(seasons.length).toBe(3);
+    for (const s of seasons) {
+      expect(s.cut.trim()).toBeTruthy();
+      expect(s.colors.length).toBeGreaterThanOrEqual(3);
+      expect(s.start.length).toBe(2);
+      expect(s.end.length).toBe(2);
+    }
+    expect(FLAG_BASE.startsWith("M0 0H40")).toBe(true);
+    expect(DEFAULT_CUT.trim()).toBeTruthy();
+  });
+  it("resolves windows inclusively", () => {
+    expect(seasonFor(d("2026-08-31"))).toBeNull();
+    expect(seasonFor(d("2026-09-01"))?.name).toBe("patrias");
+    expect(seasonFor(d("2026-09-30"))?.name).toBe("patrias");
+    expect(seasonFor(d("2026-10-14"))).toBeNull();
+    expect(seasonFor(d("2026-10-15"))?.name).toBe("muertos");
+    expect(seasonFor(d("2026-11-08"))?.name).toBe("muertos");
+    expect(seasonFor(d("2026-11-09"))).toBeNull();
+    expect(seasonFor(d("2026-11-14"))).toBeNull();
+  });
+  it("navidad wraps the year end", () => {
+    expect(seasonFor(d("2026-11-15"))?.name).toBe("navidad");
+    expect(seasonFor(d("2026-12-25"))?.name).toBe("navidad");
+    expect(seasonFor(d("2027-01-03"))?.name).toBe("navidad");
+    expect(seasonFor(d("2027-01-08"))?.name).toBe("navidad");
+    expect(seasonFor(d("2027-01-09"))).toBeNull();
+    expect(seasonFor(d("2026-07-04"))).toBeNull();
   });
 });
 

@@ -1,11 +1,16 @@
-<section id="about" class="max-w-4xl mx-auto px-6 py-16">
+---
+import EsTip from "./EsTip.astro";
+---
+
+<section id="about" class="tint-warm py-16">
+  <div class="max-w-4xl mx-auto px-6">
   <h2 class="text-2xl md:text-3xl font-bold text-center text-primary mb-3">
     Meet Your Teacher
   </h2>
   <p class="flex items-center justify-center gap-3 mb-10">
-    <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
-    <span lang="es" class="text-base italic text-primary/50">Con&oacute;ceme</span>
-    <span class="w-8 h-px bg-primary/25" aria-hidden="true"></span>
+    <span class="w-8 h-px bg-teal/40" aria-hidden="true"></span>
+    <span class="text-base" style="font-family:var(--font-serif);font-style:italic;color:var(--color-teal-dark)"><EsTip en="Get to know me">Con&oacute;ceme</EsTip></span>
+    <span class="w-8 h-px bg-teal/40" aria-hidden="true"></span>
   </p>
   <div class="flex flex-col md:flex-row gap-10 items-center">
     <picture class="shrink-0">
@@ -16,7 +21,7 @@
         alt="Elena María Ramón Martínez, Spanish teacher"
         width="512"
         height="512"
-        class="w-48 h-48 md:w-64 md:h-64 object-cover rounded-xl shadow-md"
+        class="w-48 h-48 md:w-64 md:h-64 object-cover border-4 border-white rounded-2xl shadow-lg"
         loading="lazy"
         decoding="async"
       />
@@ -37,11 +42,12 @@
         and enjoyable way.
       </p>
       <div class="flex flex-wrap gap-2 pt-2">
-        <span class="text-xs font-bold text-primary bg-primary/[0.07] px-3 py-1.5 rounded-full">Bachelor's in Translation</span>
-        <span class="text-xs font-bold text-primary bg-primary/[0.07] px-3 py-1.5 rounded-full">Master's in Education</span>
-        <span class="text-xs font-bold text-primary bg-primary/[0.07] px-3 py-1.5 rounded-full">Teaching Spanish as a Foreign Language — UEMC</span>
-        <span class="text-xs font-bold text-primary bg-primary/[0.07] px-3 py-1.5 rounded-full">Native Mexican Speaker</span>
+        <span class="text-[0.72rem] font-bold text-primary bg-primary/[0.07] px-3 py-1.5 rounded-full">Bachelor's in Translation</span>
+        <span class="text-[0.72rem] font-bold text-primary bg-primary/[0.07] px-3 py-1.5 rounded-full">Master's in Education</span>
+        <span class="text-[0.72rem] font-bold text-primary bg-primary/[0.07] px-3 py-1.5 rounded-full">Teaching Spanish as a Foreign Language — UEMC</span>
+        <span class="text-[0.72rem] font-bold text-primary bg-primary/[0.07] px-3 py-1.5 rounded-full">Native Mexican Speaker</span>
       </div>
     </div>
+  </div>
   </div>
 </section>
