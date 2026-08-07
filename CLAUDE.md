@@ -13,7 +13,7 @@ npm run preview    # Preview production build locally
 
 No linter or formatter is configured. Tests: `npm test` (production build + vitest assertions over `dist/`), also run in CI (`.github/workflows/ci.yml`).
 
-Requires Node.js >=22.12.0. Deployed to Cloudflare Pages (push to `main` triggers auto-deploy, build command: `npm run build`, output: `dist`, env: `NODE_VERSION=22`). Site: https://elenkaspanish.com
+Requires Node.js >=22.12.0. Deployed to Cloudflare Workers Builds: push to `main` triggers `npm run build` then `npx wrangler deploy`, which serves `./dist` as static assets per `wrangler.jsonc` (no Worker script, no SSR adapter — keep it that way). Site: https://elenkaspanish.com
 
 ## Architecture
 

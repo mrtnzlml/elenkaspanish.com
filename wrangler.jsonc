@@ -1,0 +1,12 @@
+{
+  // Cloudflare Workers Builds runs `npm run build` then `npx wrangler deploy`.
+  // This site is fully static: no Worker script, just the built ./dist served
+  // as static assets. Without this file, wrangler falls into its interactive
+  // setup wizard and tries to install the (unwanted) SSR adapter mid-build.
+  "name": "elenkaspanish",
+  "compatibility_date": "2026-08-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  }
+}
