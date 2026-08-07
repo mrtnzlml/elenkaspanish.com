@@ -1186,6 +1186,39 @@ describe("design system (visual uplift)", () => {
     expect(planCards.length).toBe(3);
     planCards.each((_, el) => expect($(el).attr("class")).toContain("bg-white"));
   });
+  // Astro 7's `compressHTML: 'jsx'` strips whitespace and line breaks around
+  // elements. Where an inline element sits on its own source line inside a
+  // block of text, that silently welds the two runs together ("24 USD/ lesson").
+  // Nothing else in this suite reads rendered spacing, so these assert it
+  // directly for the inline elements embedded in prose. A failure here means a
+  // source line needs an explicit `{" "}`.
+  it("whitespace survives around inline elements split across source lines", () => {
+    const $ = readPage("/");
+    // Price + its inline unit <span> (Pricing.astro).
+    const prices = $("#pricing p.text-3xl")
+      .map((_, el) => $(el).text().replace(/\s+/g, " ").trim())
+      .get();
+    expect(prices).toEqual([
+      "24 USD / lesson",
+      "18 USD / student / lesson",
+      "14 USD / student / lesson",
+    ]);
+    // <EsTip> renders inline-block inside running text, so the words on either
+    // side must stay separated.
+    $(".es-tip").each((_, el) => {
+      const parent = $(el).parent().text().replace(/\s+/g, " ");
+      const es = $(el).find(".es-tip-es").first().text().trim();
+      if (!es || !parent.includes(es)) return;
+      const i = parent.indexOf(es);
+      const before = parent[i - 1];
+      const after = parent[i + es.length];
+      // A neighbouring character must be whitespace or punctuation — never a
+      // letter, which would mean two words ran together.
+      if (before !== undefined) expect(before).not.toMatch(/\p{L}/u);
+      if (after !== undefined) expect(after).not.toMatch(/\p{L}/u);
+    });
+  });
+
   it("the university proper noun is NOT tooltip-wrapped", () => {
     const $ = readPage("/");
     const uni = $("span[lang='es']:contains('Universidad')");

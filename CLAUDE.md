@@ -19,6 +19,8 @@ Requires Node.js >=22.12.0. Deployed to Cloudflare Workers Builds: push to `main
 
 **Static site built with Astro 7 + Tailwind CSS 4.** Zero client-side JavaScript by default — games use inline `<script>` blocks with vanilla JS, no framework hydration. The homepage additionally ships three tiny progressive-enhancement scripts (seasonal papel-picado swap, daily word-of-the-day, EsTip width measurement); with JS disabled it renders the year-round banner, the fallback word, and Spanish-sized swap boxes.
 
+**Whitespace (Astro 7):** `compressHTML` defaults to `'jsx'`, so whitespace and line breaks *around* elements are stripped; whitespace within a single line is kept. Putting an inline element (`<span>`, `<a>`, `<EsTip>`) on its own source line inside running text welds the words together — `24 USD` + newline + `<span>/ lesson</span>` renders as `24 USD/ lesson`. Keep the inline element on the same line as its neighbouring text, or add an explicit `{" "}`. This only bites inline elements: flex/grid children (nav, footer, breadcrumbs, chip rows) space themselves with `gap-*` and are unaffected. The `whitespace survives around inline elements split across source lines` test in `tests/build.test.ts` guards this.
+
 ### Key directories
 
 - `src/pages/` — File-based routing. Each `.astro` file = one page.
