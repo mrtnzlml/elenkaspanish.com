@@ -598,9 +598,17 @@ describe("layout elements", () => {
     expect($("footer").length).toBe(1);
   });
 
-  it("WhatsApp button has aria-label", () => {
+  it("icon-only WhatsApp links carry aria-labels", () => {
     const $ = readPage("/");
-    expect($('a[aria-label="Chat on WhatsApp"]').length).toBe(1);
+    const iconOnly = $("a[href*='wa.me']").filter((_, el) => $(el).text().trim() === "");
+    expect(iconOnly.length).toBeGreaterThanOrEqual(2); // floating (desktop) + sticky bar (mobile)
+    iconOnly.each((_, el) => {
+      expect($(el).attr("aria-label"), "icon-only wa.me link needs aria-label").toBeTruthy();
+    });
+  });
+  it("WhatsApp buttons have aria-labels (floating + sticky bar)", () => {
+    const $ = readPage("/");
+    expect($('a[aria-label="Chat on WhatsApp"]').length).toBe(2);
   });
 
   it("mobile menu toggle has aria-expanded", () => {
