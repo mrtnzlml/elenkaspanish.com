@@ -11,7 +11,7 @@ npm run build      # Production build → ./dist/ (static output)
 npm run preview    # Preview production build locally
 ```
 
-No linter, formatter, or test runner is configured — there are no lint/test commands to run.
+No linter or formatter is configured. Tests: `npm test` (production build + vitest assertions over `dist/`), also run in CI (`.github/workflows/ci.yml`).
 
 Requires Node.js >=22.12.0. Deployed to Cloudflare Pages (push to `main` triggers auto-deploy, build command: `npm run build`, output: `dist`, env: `NODE_VERSION=22`). Site: https://elenkaspanish.com
 
@@ -104,7 +104,6 @@ Follow these rules strictly when making visual changes. Do NOT introduce new col
 ### Images
 
 - Serve images from `public/` directory with plain `<img>` tags (do NOT use Astro's `<Image>` component — it requires `sharp` which fails on Cloudflare Pages build)
-- Company logos live in `public/logos/`
 
 ## Content rules
 
@@ -114,7 +113,7 @@ Follow these rules strictly when making visual changes. Do NOT introduce new col
 
 1. Create data in `src/data/` if needed (export typed arrays)
 2. Create `src/pages/games/your-game.astro` following the existing pattern
-3. Add entry to the `games` array in `src/pages/games/index.astro`
+3. Add entry to the `games` array in `src/data/games.ts` (drives the hub grid AND the BookingCta related-games rotation)
 4. Use the standard localStorage persistence pattern (`GK`, `EXP`, `save`/`load`/`clear`)
 5. Add `aria-live="polite"` on feedback elements, `role="progressbar"` on progress bars, `cursor-pointer` on all buttons
 6. Ensure all touch targets are >=44px and test on 375px mobile viewport

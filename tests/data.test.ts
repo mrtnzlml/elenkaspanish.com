@@ -266,7 +266,7 @@ describe("fill-the-gap.ts", () => {
 describe("picado-seasons.ts", () => {
   const d = (iso: string) => new Date(iso + "T12:00:00");
   it("every season has a name, cut, colors, and window", () => {
-    expect(seasons.length).toBe(3);
+    expect(seasons.length).toBeGreaterThanOrEqual(3); // CLAUDE.md invites adding holidays
     for (const s of seasons) {
       expect(s.cut.trim()).toBeTruthy();
       expect(s.colors.length).toBeGreaterThanOrEqual(3);

@@ -34,13 +34,39 @@ function gitMtime(file) {
       ["log", "-1", "--format=%cI", "--", file],
       { cwd: REPO_ROOT, encoding: "utf-8" },
     ).trim();
+    if (!out) console.warn(`[sitemap] no git history for ${file} — lastmod omitted`);
     const value = out ? new Date(out) : null;
     mtimeCache.set(file, value);
     return value;
-  } catch {
+  } catch (err) {
+    console.warn(`[sitemap] git lookup failed for ${file} — lastmod omitted (${err?.message ?? err})`);
     mtimeCache.set(file, null);
     return null;
   }
+}
+
+/**
+ * Latest commit across the shared UI (layout, components, styles, data)
+ * that shapes every page. A page's true lastmod is the newer of its own
+ * file and this — otherwise a full redesign done in components would leave
+ * the sitemap claiming pages are unchanged.
+ */
+const SHARED_PATHS = ["src/components", "src/layouts", "src/styles", "src/data"];
+let sharedMtimeCache;
+function sharedMtime() {
+  if (sharedMtimeCache !== undefined) return sharedMtimeCache;
+  try {
+    const out = execFileSync(
+      "git",
+      ["log", "-1", "--format=%cI", "--", ...SHARED_PATHS],
+      { cwd: REPO_ROOT, encoding: "utf-8" },
+    ).trim();
+    sharedMtimeCache = out ? new Date(out) : null;
+  } catch (err) {
+    console.warn(`[sitemap] shared-mtime git lookup failed (${err?.message ?? err})`);
+    sharedMtimeCache = null;
+  }
+  return sharedMtimeCache;
 }
 
 // https://astro.build/config
@@ -56,7 +82,10 @@ export default defineConfig({
       serialize(item) {
         const pathname = new URL(item.url).pathname;
         const file = pageFileForUrl(pathname);
-        const mtime = gitMtime(file);
+        const page = gitMtime(file);
+        const shared = sharedMtime();
+        const mtime =
+          page && shared ? (page > shared ? page : shared) : page || shared;
         if (mtime) item.lastmod = mtime.toISOString();
         return item;
       },

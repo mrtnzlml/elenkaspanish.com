@@ -39,5 +39,9 @@ const PATH = `${FLAG_BASE} ${DEFAULT_CUT}`;
   .flag:nth-child(5n + 5) { color: var(--color-terracotta); }
   .flag:nth-child(2n) { animation-delay: -1.7s; }
   .flag:nth-child(3n) { animation-delay: -0.9s; }
+  /* One row needs 580px (15×34 + 14×5). Trim the banner on phones so it
+     never wraps into a mid-air second row. */
+  @media (max-width: 639px) { .flag:nth-child(n + 10) { display: none; } }
+  @media (max-width: 359px) { .flag:nth-child(n + 9) { display: none; } }
   @media (prefers-reduced-motion: reduce) { .flag { animation: none; } }
 </style>

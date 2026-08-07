@@ -45,28 +45,6 @@
   border-radius: 4px;
 }
 
-/* Respect OS-level reduced-motion preference (WCAG 2.3.3).
-   Neutralizes transitions, animations, and smooth scroll — users with
-   vestibular disorders, migraines, or motion sensitivity disable motion
-   at the OS level and expect every site to honor it. */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-  .rise {
-    animation: none;
-    opacity: 1;
-  }
-  .cta-fiesta {
-    animation: none;
-  }
-}
-
 /* ---- Visual uplift: controlled motion ---- */
 @keyframes rise {
   from {
@@ -135,8 +113,10 @@
 }
 
 .cta-fiesta {
+  /* 90deg keeps the tile-step aligned with the gradient axis, so the loop
+     never shows a traveling seam (a diagonal angle would). */
   background: linear-gradient(
-    120deg,
+    90deg,
     var(--color-rosa) 0%,
     var(--color-marigold) 50%,
     var(--color-rosa) 100%
@@ -162,4 +142,31 @@
 }
 .tint-amber {
   background: linear-gradient(180deg, #fff, #fff4e6);
+}
+
+/* Keep programmatic scrolls (incl. keyboard focus) clear of the fixed
+   mobile CTA bar. */
+html {
+  scroll-padding-bottom: 6rem;
+}
+
+/* Respect OS-level reduced-motion preference (WCAG 2.3.3). MUST stay at the
+   end of this file: it overrides same-specificity animation rules above
+   (.rise, .cta-fiesta) purely by source order. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .rise {
+    animation: none;
+    opacity: 1;
+  }
+  .cta-fiesta {
+    animation: none;
+  }
 }

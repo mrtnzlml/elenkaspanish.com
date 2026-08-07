@@ -39,9 +39,9 @@ const { en } = Astro.props;
       if (es) new ResizeObserver(() => measure(tip)).observe(es);
     });
   });
-</script><span class="es-tip" lang="es" tabindex="0"><span class="es-tip-es"><slot /></span><span
+</script><span class="es-tip" lang="es" tabindex="0"><span class="es-tip-es"><slot /></span><span class="es-tip-x"> (</span><span
     class="es-tip-en"
-    lang="en">{en}</span></span>
+    lang="en">{en}</span><span class="es-tip-x">)</span></span>
 
 <style>
   .es-tip {
@@ -49,6 +49,16 @@ const { en } = Astro.props;
     position: relative;
     white-space: nowrap;
     outline-offset: 3px;
+  }
+  /* Invisible parentheses around the English face: they never render, but
+     make textContent, copy/paste, and screen-reader output read as a sane
+     gloss — "aventura (adventure)" — instead of two glued words. */
+  .es-tip-x {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
   .es-tip--measured {
     width: var(--tip-es-w);

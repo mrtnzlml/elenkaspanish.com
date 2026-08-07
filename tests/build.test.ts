@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { load, type CheerioAPI } from "cheerio";
 
@@ -85,21 +86,35 @@ describe("build output", () => {
       expect(existsSync(join(DIST, "sitemap-index.xml"))).toBe(true);
     });
 
-    it("sitemap-0.xml emits per-URL lastmod (not a single global value)", () => {
+    it("sitemap lastmod is present, valid, and reflects shared-component changes", () => {
       const xml = readFileSync(join(DIST, "sitemap-0.xml"), "utf-8");
       const urls = [...xml.matchAll(/<url>[\s\S]*?<\/url>/g)].map((m) => m[0]);
       expect(urls.length).toBeGreaterThan(0);
-      const lastmods = urls.map((u) => {
+      let homeLastmod = "";
+      for (const u of urls) {
         const match = u.match(/<lastmod>([^<]+)<\/lastmod>/);
-        return match ? match[1] : null;
-      });
-      for (const lm of lastmods) {
-        expect(lm, "every URL has a <lastmod>").not.toBeNull();
+        expect(match, "every URL has a <lastmod>").not.toBeNull();
+        expect(
+          Number.isNaN(Date.parse(match![1])),
+          "lastmod parses as a date",
+        ).toBe(false);
+        if (u.includes("<loc>https://elenkaspanish.com/</loc>")) {
+          homeLastmod = match![1];
+        }
       }
-      expect(
-        new Set(lastmods).size,
-        "at least two distinct lastmod values (per-file, not global)",
-      ).toBeGreaterThan(1);
+      // The homepage is composed from shared components; its lastmod must be
+      // at least as new as the last commit touching Hero.astro (regression
+      // guard: lastmod once tracked only the page's own file, claiming the
+      // homepage was unchanged right after a component-level redesign).
+      const heroCommit = execFileSync(
+        "git",
+        ["log", "-1", "--format=%cI", "--", "src/components/Hero.astro"],
+        { cwd: join(import.meta.dirname, ".."), encoding: "utf-8" },
+      ).trim();
+      expect(homeLastmod, "homepage present in sitemap").not.toBe("");
+      expect(Date.parse(homeLastmod)).toBeGreaterThanOrEqual(
+        Date.parse(heroCommit),
+      );
     });
 
     it("robots.txt exists", () => {
@@ -609,6 +624,21 @@ describe("layout elements", () => {
   it("WhatsApp buttons have aria-labels (floating + sticky bar)", () => {
     const $ = readPage("/");
     expect($('a[aria-label="Chat on WhatsApp"]').length).toBe(2);
+  });
+
+  it("mobile CTA bar pairs booking with WhatsApp; floating button is desktop-only", () => {
+    const $ = readPage("/");
+    const bar = $("#mobile-cta");
+    expect(bar.find("a[href*='calendar.google.com']").length).toBe(1);
+    const barWa = bar.find("a[href*='wa.me']");
+    expect(barWa.length).toBe(1);
+    expect(barWa.attr("aria-label"), "icon-only bar button labeled").toBeTruthy();
+    const floatingClass =
+      $("a[href*='wa.me']")
+        .filter((_, el) => $(el).closest("#mobile-cta").length === 0 && $(el).text().trim() === "")
+        .attr("class") ?? "";
+    expect(floatingClass, "floating button hidden on mobile").toContain("hidden");
+    expect(floatingClass, "floating button shown on desktop").toContain("md:flex");
   });
 
   it("mobile menu toggle has aria-expanded", () => {

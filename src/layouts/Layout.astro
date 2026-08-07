@@ -204,6 +204,13 @@ const breadcrumbLd =
       .nav-open {
         display: flex !important;
       }
+      /* If the menu is open while crossing the md breakpoint (rotation,
+         resize), don't render it alongside the desktop nav. */
+      @media (min-width: 768px) {
+        .nav-open {
+          display: none !important;
+        }
+      }
     </style>
   </head>
   <body class="bg-cream text-gray-800 font-sans antialiased">
@@ -302,7 +309,7 @@ const breadcrumbLd =
       <slot />
     </main>
 
-    <footer class="border-t border-gray-200 mt-16">
+    <footer class="border-t border-gray-200 mt-16 pb-20 md:pb-0">
       <div class="max-w-4xl mx-auto px-6 py-10">
         <div class="grid sm:grid-cols-3 gap-8 mb-8">
           <div>
@@ -412,15 +419,21 @@ const breadcrumbLd =
       });
 
       // Sticky mobile CTA — show after scrolling past 500px
+      // On short pages (404, small games) the 500px threshold is capped so
+      // the bar — mobile's only WhatsApp/booking affordance — still appears,
+      // and the state is synced on load, bfcache restore, and resize.
       const mobileCta = document.getElementById("mobile-cta");
       if (mobileCta) {
-        window.addEventListener("scroll", () => {
-          if (window.scrollY > 500) {
-            mobileCta.classList.remove("hidden");
-          } else {
-            mobileCta.classList.add("hidden");
-          }
-        }, { passive: true });
+        const updateCta = () => {
+          const maxScroll =
+            document.documentElement.scrollHeight - window.innerHeight;
+          const threshold = Math.min(500, Math.max(0, maxScroll - 80));
+          mobileCta.classList.toggle("hidden", window.scrollY < threshold);
+        };
+        window.addEventListener("scroll", updateCta, { passive: true });
+        window.addEventListener("resize", updateCta, { passive: true });
+        window.addEventListener("pageshow", updateCta);
+        updateCta();
       }
     </script>
   </body>
