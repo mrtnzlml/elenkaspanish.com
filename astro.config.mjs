@@ -73,6 +73,14 @@ function sharedMtime() {
 export default defineConfig({
   site: "https://elenkaspanish.com",
 
+  // Astro 7 switched the default to 'jsx', which strips whitespace and line
+  // breaks around elements — that silently closes up the gaps between inline
+  // elements written across separate lines (nav links, footer links, the
+  // inline-block <EsTip> spans). `true` is the pre-v7 lossless mode, which
+  // preserves whitespace where it affects visual rendering. Keep it until the
+  // markup is audited for JSX whitespace rules.
+  compressHTML: true,
+
   vite: {
     plugins: [tailwindcss()],
   },

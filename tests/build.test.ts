@@ -662,11 +662,16 @@ describe("layout elements", () => {
   // handler is present in the inline layout script.
   it("mobile menu closes on Escape (WAI-ARIA disclosure)", () => {
     const html = readFileSync(htmlPath("/"), "utf-8");
-    // Minified vars change name, but the call structure is stable: a keydown
-    // listener that checks `key === "Escape"`, inspects `nav-open`, and calls
-    // `.focus()` to restore focus to the toggle.
-    expect(html).toMatch(/addEventListener\("keydown"/);
-    expect(html).toMatch(/"Escape"[\s\S]{0,120}"nav-open"[\s\S]{0,120}\.focus\(\)/);
+    // Minified vars change name and the minifier picks its own string quoting
+    // (esbuild emits "double", Vite 8's minifier emits `backtick`), but the
+    // call structure is stable: a keydown listener that checks
+    // `key === "Escape"`, inspects `nav-open`, and calls `.focus()` to restore
+    // focus to the toggle. `q` matches whichever quote style is in use.
+    const q = `["'\`]`;
+    expect(html).toMatch(new RegExp(`addEventListener\\(${q}keydown${q}`));
+    expect(html).toMatch(
+      new RegExp(`${q}Escape${q}[\\s\\S]{0,120}${q}nav-open${q}[\\s\\S]{0,120}\\.focus\\(\\)`),
+    );
   });
 
   it("decorative blobs are aria-hidden", () => {

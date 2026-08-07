@@ -17,7 +17,7 @@ Requires Node.js >=22.12.0. Deployed to Cloudflare Workers Builds: push to `main
 
 ## Architecture
 
-**Static site built with Astro 6 + Tailwind CSS 4.** Zero client-side JavaScript by default — games use inline `<script>` blocks with vanilla JS, no framework hydration. The homepage additionally ships three tiny progressive-enhancement scripts (seasonal papel-picado swap, daily word-of-the-day, EsTip width measurement); with JS disabled it renders the year-round banner, the fallback word, and Spanish-sized swap boxes.
+**Static site built with Astro 7 + Tailwind CSS 4.** Zero client-side JavaScript by default — games use inline `<script>` blocks with vanilla JS, no framework hydration. The homepage additionally ships three tiny progressive-enhancement scripts (seasonal papel-picado swap, daily word-of-the-day, EsTip width measurement); with JS disabled it renders the year-round banner, the fallback word, and Spanish-sized swap boxes.
 
 ### Key directories
 
