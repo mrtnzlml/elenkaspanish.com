@@ -46,6 +46,10 @@ export const testimonials: Testimonial[] = [
   {
     name: "Petr Š.",
     quote:
-      "I am very satisfied, 10/10. Careful preparation, adapting the lessons to my needs, making sure to speak Spanish even when switching to English, but using understandable language, addressing cultural and regional differences, which are important in Spanish, especially given the differences between Europe and Latin America, unusual and interesting exercises and tasks.",
+      "I am very satisfied, 10/10. Careful preparation and lessons adapted to my needs. She makes sure to keep speaking Spanish even when I slip into English, while still using language I can understand. She covers cultural and regional differences, which matter a lot in Spanish, especially between Europe and Latin America. Unusual and interesting exercises and homework.",
+  },
+  {
+    name: "Natálie D.",
+    quote: "The lesson was amazing, and the teacher was very skilled and kind.",
   },
 ];
