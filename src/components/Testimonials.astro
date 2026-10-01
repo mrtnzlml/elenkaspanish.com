@@ -50,12 +50,7 @@ const quoteMark =
                 <p>{i === 0 && "\u201c"}{para}{i === all.length - 1 && "\u201d"}</p>
               ))}
             </div>
-            <cite class="relative text-sm font-bold not-italic text-gray-800 flex items-center gap-2">
-              — {t.name}
-              {t.linkedin && (
-                <a href={t.linkedin} target="_blank" rel="noopener noreferrer" class="text-primary hover:underline font-normal text-xs">LinkedIn</a>
-              )}
-            </cite>
+            <cite class="relative text-sm font-bold not-italic text-gray-800">— {t.name}</cite>
           </blockquote>
         ))}
       </div>
