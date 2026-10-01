@@ -1,36 +1,14 @@
 ---
 import EsTip from "./EsTip.astro";
+import { testimonials, VISIBLE_COUNT } from "../data/testimonials";
 
-const featured = {
-  name: "Šárka S.",
-  quote:
-    "I can confidently say that Elena is an excellent Spanish teacher. Her lessons are always well-prepared, engaging, and tailored to my level. She explains grammar clearly and makes even difficult topics easy to understand. What I appreciate the most is her patience and positive attitude\u2014she creates a comfortable environment where it\u2019s not stressful to make mistakes, which really helps with learning. The classes are dynamic and include a good balance of speaking, listening, and grammar practice. Thanks to her teaching style, I have improved my Spanish significantly and feel much more confident when using the language. I would highly recommend Elena to anyone looking for a professional, friendly, and effective Spanish teacher.",
-};
-
-const testimonials = [
-  {
-    name: "Miroslav Sedláček",
-    quote:
-      "Learning made fun again! Elena has guided me through my first Spanish words into basic conversations, all in six months. I will go further, and I recommend that everyone join me.",
-    linkedin: "https://www.linkedin.com/in/miroslavsedlacek/",
-  },
-  {
-    name: "Lea P.",
-    quote:
-      "Elena is an amazing teacher. She tailored the whole curriculum to my needs and the way I learn most effectively. The lessons are productive, fun, and actually make me look forward to studying. I\u2019ve made huge progress and can\u2019t recommend her enough!",
-  },
-  {
-    name: "Michal Sänger",
-    quote:
-      "The lessons were great, well-prepared, beneficial, and operationally adjusted for the next session. A huge difference compared to only learning with Duolingo.",
-    linkedin: "https://www.linkedin.com/in/michalsanger/",
-  },
-  {
-    name: "Tereza Koutníková",
-    quote:
-      "Great teacher who creates a friendly and supportive atmosphere. The explanations are clear and easy to understand and the lessons are always adapted to my needs. Her approach makes Spanish enjoyable and fun.",
-  },
-];
+const featured = testimonials.find((t) => t.featured);
+const rest = testimonials.filter((t) => !t.featured);
+const visible = rest.slice(0, VISIBLE_COUNT);
+const hidden = rest.slice(VISIBLE_COUNT);
+const paragraphs = (quote: string) => quote.split("\n\n");
+const quoteMark =
+  "M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z";
 ---
 
 <section id="testimonials" class="tint-teal py-16">
@@ -48,46 +26,51 @@ const testimonials = [
     <span class="text-sm text-gray-500">Loved by 50+ students</span>
   </div>
 
-  <!-- Featured testimonial (full width) -->
-  <blockquote class="relative p-8 rounded-xl border-2 border-primary/20 bg-primary/[0.02] shadow-sm mb-8 overflow-hidden">
-    <svg class="absolute top-4 left-4 w-16 h-16 text-primary/[0.06]" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z" />
-    </svg>
-    <p class="relative text-gray-600 italic leading-relaxed mb-4 text-lg">
-      &ldquo;{featured.quote}&rdquo;
-    </p>
-    <cite class="relative text-sm font-bold not-italic text-gray-800">
-      — {featured.name}
-    </cite>
-  </blockquote>
+  {featured && (
+    <blockquote class="relative p-8 rounded-xl border-2 border-primary/20 bg-primary/[0.02] shadow-sm mb-6 overflow-hidden">
+      <svg class="absolute top-4 left-4 w-16 h-16 text-primary/[0.06]" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d={quoteMark} /></svg>
+      <div class="relative text-gray-600 italic leading-relaxed mb-4 text-lg space-y-3">
+        {paragraphs(featured.quote).map((para, i, all) => (
+          <p>{i === 0 && "\u201c"}{para}{i === all.length - 1 && "\u201d"}</p>
+        ))}
+      </div>
+      <cite class="relative text-sm font-bold not-italic text-gray-800">— {featured.name}</cite>
+    </blockquote>
+  )}
 
-  <!-- Remaining testimonials (3 columns) -->
-  <div class="grid md:grid-cols-2 gap-6">
-    {
-      testimonials.map((t) => (
-        <blockquote class="relative p-6 rounded-xl border border-gray-200 bg-white shadow-sm flex flex-col overflow-hidden">
-          <svg class="absolute top-3 left-3 w-10 h-10 text-primary/[0.05]" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z" />
-          </svg>
-          <p class="relative text-gray-600 italic leading-relaxed mb-4 flex-1">
-            &ldquo;{t.quote}&rdquo;
-          </p>
-          <cite class="relative text-sm font-bold not-italic text-gray-800 flex items-center gap-2">
-            — {t.name}
-            {t.linkedin && (
-              <a
-                href={t.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-primary hover:underline font-normal text-xs"
-              >
-                LinkedIn
-              </a>
-            )}
-          </cite>
-        </blockquote>
-      ))
-    }
-  </div>
+  <!-- Masonry: CSS columns absorb quotes of very different lengths without JS. -->
+  {[visible, hidden].map((group, g) => {
+    const cards = (
+      <div class="md:columns-2 gap-6">
+        {group.map((t) => (
+          <blockquote class="relative mb-6 break-inside-avoid p-6 rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+            <svg class="absolute top-3 left-3 w-10 h-10 text-primary/[0.05]" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d={quoteMark} /></svg>
+            <div class="relative text-gray-600 italic leading-relaxed mb-4 space-y-3">
+              {paragraphs(t.quote).map((para, i, all) => (
+                <p>{i === 0 && "\u201c"}{para}{i === all.length - 1 && "\u201d"}</p>
+              ))}
+            </div>
+            <cite class="relative text-sm font-bold not-italic text-gray-800 flex items-center gap-2">
+              — {t.name}
+              {t.linkedin && (
+                <a href={t.linkedin} target="_blank" rel="noopener noreferrer" class="text-primary hover:underline font-normal text-xs">LinkedIn</a>
+              )}
+            </cite>
+          </blockquote>
+        ))}
+      </div>
+    );
+    if (g === 0) return cards;
+    if (!group.length) return null;
+    return (
+      <details class="group">
+        <summary class="mx-auto w-fit list-none cursor-pointer px-6 py-3 rounded-lg font-bold text-primary border border-primary/20 bg-white hover:bg-primary/5 [&::-webkit-details-marker]:hidden">
+          <span class="group-open:hidden">Show {group.length} more {group.length === 1 ? "review" : "reviews"}</span>
+          <span class="hidden group-open:inline">Show fewer reviews</span>
+        </summary>
+        <div class="mt-6">{cards}</div>
+      </details>
+    );
+  })}
   </div>
 </section>

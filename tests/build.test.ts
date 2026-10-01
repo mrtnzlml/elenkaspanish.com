@@ -3,6 +3,7 @@ import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { load, type CheerioAPI } from "cheerio";
+import { testimonials } from "../src/data/testimonials";
 
 const DIST = join(import.meta.dirname, "..", "dist");
 
@@ -1171,6 +1172,16 @@ describe("design system (visual uplift)", () => {
     const $ = readPage("/");
     expect($("h1 .es-tip .es-tip-es").text()).toContain("aventura");
     expect($("h1 .es-tip .es-tip-en").text()).toContain("adventure");
+  });
+  it("every testimonial renders verbatim, one <p> per paragraph", () => {
+    const $ = readPage("/");
+    const quotes = $("#testimonials blockquote");
+    expect(quotes.length).toBe(testimonials.length);
+    testimonials.forEach((t, i) => {
+      const paras = quotes.eq(i).find("p").map((_, el) => $(el).text()).get();
+      expect(paras.join("\n\n")).toBe(`\u201c${t.quote}\u201d`);
+      expect(quotes.eq(i).find("cite").text()).toContain(t.name);
+    });
   });
   it("cards on tinted sections have explicit white surfaces (mockup spec)", () => {
     const $ = readPage("/");
