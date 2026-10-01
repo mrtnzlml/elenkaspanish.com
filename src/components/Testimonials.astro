@@ -1,71 +1,74 @@
 ---
 import EsTip from "./EsTip.astro";
-import { testimonials, VISIBLE_COUNT } from "../data/testimonials";
+import TestimonialCard from "./TestimonialCard.astro";
+import { testimonials, splitLead, VISIBLE_COUNT } from "../data/testimonials";
 
 const featured = testimonials.find((t) => t.featured);
+const spot = featured && splitLead(featured.quote);
 const rest = testimonials.filter((t) => !t.featured);
 const visible = rest.slice(0, VISIBLE_COUNT);
 const hidden = rest.slice(VISIBLE_COUNT);
-const paragraphs = (quote: string) => quote.split("\n\n");
-const quoteMark =
-  "M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z";
+// Text-safe accents only (white initials on them pass AA).
+const avatarColors = ["bg-primary", "bg-rosa", "bg-teal-dark", "bg-terracotta"];
+const avatar = (i: number) => avatarColors[i % avatarColors.length];
+// Cards keep the colour each student has in the avatar stack.
+const avatarFor = (t: (typeof testimonials)[number]) => avatar(testimonials.indexOf(t));
 ---
 
 <section id="testimonials" class="tint-teal py-16">
-  <div class="max-w-4xl mx-auto px-6">
-  <h2 class="text-2xl md:text-3xl font-bold text-center text-primary mb-3">
-    What My Students Say
-  </h2>
-  <p class="flex items-center justify-center gap-3 mb-3">
-    <span class="w-8 h-px bg-teal/40" aria-hidden="true"></span>
-    <span class="text-base" style="font-family:var(--font-serif);font-style:italic;color:var(--color-teal-dark)"><EsTip en="What my students say">Lo que dicen mis alumnos</EsTip></span>
-    <span class="w-8 h-px bg-teal/40" aria-hidden="true"></span>
-  </p>
-  <div class="flex items-center justify-center gap-2 mb-12">
-    <span class="text-lg tracking-wide" style="color:var(--color-marigold)" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-    <span class="text-sm text-gray-500">Loved by 50+ students</span>
-  </div>
+  <div class="max-w-7xl mx-auto px-6">
+    <h2 class="text-2xl md:text-3xl font-bold text-center text-primary mb-3">
+      What My Students Say
+    </h2>
+    <p class="flex items-center justify-center gap-3 mb-12">
+      <span class="w-8 h-px bg-teal/40" aria-hidden="true"></span>
+      <span class="text-base" style="font-family:var(--font-serif);font-style:italic;color:var(--color-teal-dark)"><EsTip en="What my students say">Lo que dicen mis alumnos</EsTip></span>
+      <span class="w-8 h-px bg-teal/40" aria-hidden="true"></span>
+    </p>
 
-  {featured && (
-    <blockquote class="relative p-8 rounded-xl border-2 border-primary/20 bg-primary/[0.02] shadow-sm mb-6 overflow-hidden">
-      <svg class="absolute top-4 left-4 w-16 h-16 text-primary/[0.06]" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d={quoteMark} /></svg>
-      <div class="relative text-gray-600 italic leading-relaxed mb-4 text-lg space-y-3">
-        {paragraphs(featured.quote).map((para, i, all) => (
-          <p>{i === 0 && "\u201c"}{para}{i === all.length - 1 && "\u201d"}</p>
-        ))}
-      </div>
-      <cite class="relative text-sm font-bold not-italic text-gray-800">— {featured.name}</cite>
-    </blockquote>
-  )}
-
-  <!-- Masonry: CSS columns absorb quotes of very different lengths without JS. -->
-  {[visible, hidden].map((group, g) => {
-    const cards = (
-      <div class="md:columns-2 gap-6">
-        {group.map((t) => (
-          <blockquote class="relative mb-6 break-inside-avoid p-6 rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-            <svg class="absolute top-3 left-3 w-10 h-10 text-primary/[0.05]" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d={quoteMark} /></svg>
-            <div class="relative text-gray-600 italic leading-relaxed mb-4 space-y-3">
-              {paragraphs(t.quote).map((para, i, all) => (
-                <p>{i === 0 && "\u201c"}{para}{i === all.length - 1 && "\u201d"}</p>
+    <div class="grid lg:grid-cols-[5fr_7fr] gap-10 lg:gap-14">
+      <!-- Spotlight: sticks beside the cards on desktop. Needs <main> to clip
+           with overflow-x-clip, not overflow-hidden, or sticky stops working. -->
+      {featured && spot && (
+        <figure id="testimonial-spotlight" class="lg:sticky lg:top-24 self-start">
+          <blockquote>
+            <p class="text-3xl md:text-4xl leading-tight text-primary mb-5" style="font-family:var(--font-serif);font-style:italic">&ldquo;{spot.lead}{spot.rest.length === 0 && "”"}</p>
+            {spot.rest.map((p, i) => (
+              <p class="text-gray-600 leading-relaxed mt-3 first:mt-0">{p}{i === spot.rest.length - 1 && "”"}</p>
+            ))}
+          </blockquote>
+          <figcaption class="flex items-center gap-3 mt-6 font-bold text-gray-800">
+            <span class={`w-10 h-10 rounded-full grid place-items-center text-white ${avatarFor(featured)}`} aria-hidden="true">{featured.name[0]}</span>
+            {featured.name}
+          </figcaption>
+          <div class="flex items-center gap-4 mt-8 pt-6 border-t border-teal/25">
+            <div class="flex shrink-0" aria-hidden="true">
+              {testimonials.map((t, i) => (
+                <span class={`w-9 h-9 -ml-2.5 first:ml-0 rounded-full grid place-items-center text-sm font-bold text-white border-[3px] border-white ${avatar(i)}`}>{t.name[0]}</span>
               ))}
             </div>
-            <cite class="relative text-sm font-bold not-italic text-gray-800">— {t.name}</cite>
-          </blockquote>
-        ))}
+            <p class="text-gray-800">{testimonials.length} written reviews from over 50 students</p>
+          </div>
+        </figure>
+      )}
+
+      <div>
+        <!-- Masonry: CSS columns absorb quotes of very different lengths without JS. -->
+        <div class="md:columns-2 gap-6">
+          {visible.map((t) => <TestimonialCard testimonial={t} avatarClass={avatarFor(t)} />)}
+        </div>
+        {hidden.length > 0 && (
+          <details class="group">
+            <summary class="mx-auto w-fit list-none cursor-pointer px-6 py-3 rounded-lg font-bold text-primary border border-primary/20 bg-white hover:bg-primary/5 [&::-webkit-details-marker]:hidden">
+              <span class="group-open:hidden">Show {hidden.length} more {hidden.length === 1 ? "review" : "reviews"}</span>
+              <span class="hidden group-open:inline">Show fewer reviews</span>
+            </summary>
+            <div class="md:columns-2 gap-6 mt-6">
+              {hidden.map((t) => <TestimonialCard testimonial={t} avatarClass={avatarFor(t)} />)}
+            </div>
+          </details>
+        )}
       </div>
-    );
-    if (g === 0) return cards;
-    if (!group.length) return null;
-    return (
-      <details class="group">
-        <summary class="mx-auto w-fit list-none cursor-pointer px-6 py-3 rounded-lg font-bold text-primary border border-primary/20 bg-white hover:bg-primary/5 [&::-webkit-details-marker]:hidden">
-          <span class="group-open:hidden">Show {group.length} more {group.length === 1 ? "review" : "reviews"}</span>
-          <span class="hidden group-open:inline">Show fewer reviews</span>
-        </summary>
-        <div class="mt-6">{cards}</div>
-      </details>
-    );
-  })}
+    </div>
   </div>
 </section>

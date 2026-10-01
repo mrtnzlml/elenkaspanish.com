@@ -1,0 +1,21 @@
+---
+import { splitLead, type Testimonial } from "../data/testimonials";
+
+interface Props {
+  testimonial: Testimonial;
+  avatarClass: string;
+}
+const { testimonial: t, avatarClass } = Astro.props;
+const { lead, rest } = splitLead(t.quote);
+---
+
+<figure class="mb-6 break-inside-avoid rounded-xl border border-gray-200 bg-white shadow-sm p-6">
+  <blockquote>
+    <p class="text-xl leading-snug text-ink mb-3" style="font-family:var(--font-serif);font-style:italic">{lead}</p>
+    {rest.length > 0 && <div class="space-y-3 text-gray-600 leading-relaxed">{rest.map((p) => <p>{p}</p>)}</div>}
+  </blockquote>
+  <figcaption class="flex items-center gap-3 mt-5 font-bold text-gray-800">
+    <span class={`w-9 h-9 rounded-full grid place-items-center text-sm text-white ${avatarClass}`} aria-hidden="true">{t.name[0]}</span>
+    {t.name}
+  </figcaption>
+</figure>

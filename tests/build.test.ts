@@ -1173,23 +1173,28 @@ describe("design system (visual uplift)", () => {
     expect($("h1 .es-tip .es-tip-es").text()).toContain("aventura");
     expect($("h1 .es-tip .es-tip-en").text()).toContain("adventure");
   });
-  it("every testimonial renders verbatim, one <p> per paragraph", () => {
+  it("every testimonial renders verbatim", () => {
     const $ = readPage("/");
-    const quotes = $("#testimonials blockquote");
-    expect(quotes.length).toBe(testimonials.length);
-    testimonials.forEach((t, i) => {
-      const paras = quotes.eq(i).find("p").map((_, el) => $(el).text()).get();
-      expect(paras.join("\n\n")).toBe(`\u201c${t.quote}\u201d`);
-      expect(quotes.eq(i).find("cite").text()).toContain(t.name);
+    const figures = $("#testimonials figure");
+    expect(figures.length).toBe(testimonials.length);
+    const flat = (s: string) => s.replace(/[\u201c\u201d]/g, "").replace(/\s+/g, " ").trim();
+    testimonials.forEach((t) => {
+      // figcaption = avatar initial + name
+      const fig = figures.filter((_, el) => $(el).find("figcaption").text().trim().endsWith(t.name));
+      expect(fig.length, t.name).toBe(1);
+      // The first sentence is styled as a headline; the words must not change.
+      const paras = fig.find("blockquote p").map((_, el) => $(el).text()).get();
+      expect(flat(paras.join(" "))).toBe(flat(t.quote));
     });
+    expect($("#testimonial-spotlight figcaption").text().trim()).toMatch(
+      new RegExp(`${testimonials.find((t) => t.featured)?.name}$`),
+    );
   });
   it("cards on tinted sections have explicit white surfaces (mockup spec)", () => {
     const $ = readPage("/");
-    const gridQuotes = $("#testimonials blockquote").filter(
-      (_, el) => !($(el).attr("class") ?? "").includes("bg-primary"),
-    );
-    expect(gridQuotes.length).toBeGreaterThanOrEqual(4);
-    gridQuotes.each((_, el) => expect($(el).attr("class")).toContain("bg-white"));
+    const cards = $("#testimonials figure").not("#testimonial-spotlight");
+    expect(cards.length).toBeGreaterThanOrEqual(4);
+    cards.each((_, el) => expect($(el).attr("class")).toContain("bg-white"));
     const benefitCards = $("#why-choose .grid > div");
     expect(benefitCards.length).toBe(4);
     benefitCards.each((_, el) => expect($(el).attr("class")).toContain("bg-white"));

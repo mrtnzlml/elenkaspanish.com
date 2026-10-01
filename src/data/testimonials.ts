@@ -1,15 +1,22 @@
 // Real quotes from real students — never rewrite, shorten, or rephrase them.
 // Separate paragraphs with "\n\n"; the component renders each as its own <p>.
-// Order matters: the `featured` entry renders full-width on top, the rest flow
-// into a masonry grid in array order, and anything past VISIBLE_COUNT goes
-// behind a "Show more" toggle.
+// Order matters: the `featured` entry is the large spotlight quote, the rest
+// flow into a two-column masonry in array order, and anything past
+// VISIBLE_COUNT goes behind a "Show more" toggle.
 export type Testimonial = {
   name: string;
   quote: string;
   featured?: boolean;
 };
 
-export const VISIBLE_COUNT = 6;
+export const VISIBLE_COUNT = 10;
+
+// Splits off the first sentence, which the cards set large as a headline.
+// Styling only: lead + rest is still the quote word for word.
+export function splitLead(quote: string): { lead: string; rest: string[] } {
+  const m = quote.match(/^(.+?[.!?])\s+([\s\S]*)$/);
+  return m ? { lead: m[1], rest: m[2].split("\n\n") } : { lead: quote, rest: [] };
+}
 
 export const testimonials: Testimonial[] = [
   {
