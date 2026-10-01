@@ -43,4 +43,9 @@ export const testimonials: Testimonial[] = [
     quote:
       "Great teacher who creates a friendly and supportive atmosphere. The explanations are clear and easy to understand and the lessons are always adapted to my needs. Her approach makes Spanish enjoyable and fun.",
   },
+  {
+    name: "Petr Š.",
+    quote:
+      "I am very satisfied, 10/10. Careful preparation, adapting the lessons to my needs, making sure to speak Spanish even when switching to English, but using understandable language, addressing cultural and regional differences, which are important in Spanish, especially given the differences between Europe and Latin America, unusual and interesting exercises and tasks.",
+  },
 ];
