@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { categories, getAllWords, shuffle, wordOfTheDay } from "../src/data/words";
+import { categories, getAllWords, shuffle } from "../src/data/words";
+import { wordsByMonth, dailyWords, wordOfTheDay, randomWord } from "../src/data/daily-words";
 import { sentences } from "../src/data/sentences";
 import { verbs } from "../src/data/verbs";
 import { accentWords } from "../src/data/accents";
@@ -76,22 +77,37 @@ describe("words.ts", () => {
   });
 });
 
-describe("wordOfTheDay", () => {
-  const DAY = 86_400_000;
-  it("is deterministic within a UTC day", () => {
-    expect(wordOfTheDay(new Date("2026-07-04T00:00:01Z"))).toEqual(
-      wordOfTheDay(new Date("2026-07-04T23:59:59Z")),
-    );
+describe("daily-words.ts", () => {
+  it("has one word per date of a non-leap year", () => {
+    expect(wordsByMonth.map((m) => m.length)).toEqual([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]);
+    expect(dailyWords.length).toBe(365);
   });
-  it("returns a pair from the pool", () => {
-    expect(getAllWords()).toContainEqual(wordOfTheDay(new Date("2026-01-15T12:00:00Z")));
+  it("never repeats a word", () => {
+    expect(new Set(dailyWords.map((w) => w.es)).size).toBe(dailyWords.length);
   });
-  it("changes on consecutive days and cycles after the pool length", () => {
-    const d0 = new Date("2026-03-01T12:00:00Z");
-    const d1 = new Date(d0.getTime() + DAY);
-    const dn = new Date(d0.getTime() + getAllWords().length * DAY);
-    expect(wordOfTheDay(d0)).not.toEqual(wordOfTheDay(d1));
-    expect(wordOfTheDay(dn)).toEqual(wordOfTheDay(d0));
+  it("entries are words, not sentences (at most 4 tokens, articles included)", () => {
+    for (const w of dailyWords) {
+      expect(w.es.trim().split(/\s+/).length, w.es).toBeLessThanOrEqual(4);
+      expect(w.en.trim(), w.es).not.toBe("");
+    }
+  });
+  it("follows the local calendar date, holidays included", () => {
+    expect(wordOfTheDay(new Date(2026, 0, 1)).es).toBe("el año nuevo");
+    expect(wordOfTheDay(new Date(2026, 8, 16)).es).toBe("la independencia");
+    expect(wordOfTheDay(new Date(2026, 10, 2)).es).toBe("el cempasúchil");
+    expect(wordOfTheDay(new Date(2026, 11, 25)).es).toBe("la Navidad");
+    expect(wordOfTheDay(new Date(2026, 6, 4, 0, 1))).toEqual(wordOfTheDay(new Date(2026, 6, 4, 23, 59)));
+  });
+  it("shows Feb 28's word on Feb 29", () => {
+    expect(wordOfTheDay(new Date(2028, 1, 29))).toEqual(wordOfTheDay(new Date(2028, 1, 28)));
+  });
+  it("randomWord never returns the current word", () => {
+    const current = dailyWords[0];
+    for (const r of [0, 0.5, 0.999999]) {
+      const w = randomWord(current, () => r);
+      expect(dailyWords).toContainEqual(w);
+      expect(w.es).not.toBe(current.es);
+    }
   });
 });
 

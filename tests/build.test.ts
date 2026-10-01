@@ -4,6 +4,7 @@ import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { load, type CheerioAPI } from "cheerio";
 import { testimonials } from "../src/data/testimonials";
+import { dailyWords } from "../src/data/daily-words";
 
 const DIST = join(import.meta.dirname, "..", "dist");
 
@@ -1224,11 +1225,23 @@ describe("design system (visual uplift)", () => {
     ]);
   });
 
-  it("hero word-of-day card has swap targets and ships the daily-word logic", () => {
+  it("hero word-of-the-day card renders a real word and a shuffle button", () => {
     const $ = readPage("/");
-    expect($("#wod-es").text().trim()).toBe("la aventura"); // SSR fallback
-    expect($("#wod-en").text()).toContain("adventure");
+    expect($("#word-label").text().trim()).toBe("Word of the day");
+    const es = $("#word-es");
+    expect(es.attr("lang")).toBe("es");
+    // SSR fallback is the build day's word from the list.
+    expect(dailyWords.map((w) => w.es)).toContain(es.text().trim());
+    expect($("#word-es").parent().attr("aria-live")).toBe("polite");
+    const btn = $("#word-next");
+    expect(btn.attr("hidden"), "no-JS: button stays hidden").toBeDefined();
+    expect(btn.attr("aria-label")).toBe("Show another word");
+    expect(btn.attr("class")).toContain("cursor-pointer");
+    // 24px icon + 10px ::after overlay on each side = 44px touch target
+    expect(btn.attr("class")).toContain("w-6 h-6");
+    expect(btn.attr("class")).toContain("after:-inset-2.5");
+    expect(btn.closest("[aria-hidden='true']").length).toBe(0);
     const all = readBuiltJs() + ($.html() ?? "");
-    expect(all).toContain("wod-es");
+    expect(all).toContain("word-next");
   });
 });

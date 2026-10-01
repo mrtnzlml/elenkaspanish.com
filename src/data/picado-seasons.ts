@@ -49,7 +49,7 @@ export const seasons: PicadoSeason[] = [
 /**
  * Active season for the given date, or null for the year-round banner.
  * Uses the LOCAL calendar date on purpose: seasons follow the visitor's
- * clock (per design decision), unlike wordOfTheDay which is UTC-based.
+ * clock (per design decision), like wordOfTheDay.
  */
 export function seasonFor(date: Date): PicadoSeason | null {
   const md = (date.getMonth() + 1) * 100 + date.getDate();

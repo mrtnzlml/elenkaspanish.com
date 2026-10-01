@@ -17,7 +17,7 @@ Requires Node.js >=22.12.0. Deployed to Cloudflare Workers Builds: push to `main
 
 ## Architecture
 
-**Static site built with Astro 7 + Tailwind CSS 4.** Zero client-side JavaScript by default — games use inline `<script>` blocks with vanilla JS, no framework hydration. The homepage additionally ships two tiny progressive-enhancement scripts (seasonal papel-picado swap, daily word-of-the-day); with JS disabled it renders the year-round banner and the fallback word.
+**Static site built with Astro 7 + Tailwind CSS 4.** Zero client-side JavaScript by default — games use inline `<script>` blocks with vanilla JS, no framework hydration. The homepage additionally ships two tiny progressive-enhancement scripts (seasonal papel-picado swap, word of the day with a "show another" button); with JS disabled it renders the year-round banner and the build day's word, with the button hidden. The 365 words (one per calendar date, holidays included) live in `src/data/daily-words.ts`.
 
 **Whitespace (Astro 7):** `compressHTML` defaults to `'jsx'`, so whitespace and line breaks *around* elements are stripped; whitespace within a single line is kept. Putting an inline element (`<span>`, `<a>`) on its own source line inside running text welds the words together — `24 USD` + newline + `<span>/ lesson</span>` renders as `24 USD/ lesson`. Keep the inline element on the same line as its neighbouring text, or add an explicit `{" "}`. This only bites inline elements: flex/grid children (nav, footer, breadcrumbs, chip rows) space themselves with `gap-*` and are unaffected. The `whitespace survives around inline elements split across source lines` test in `tests/build.test.ts` guards this.
 
@@ -109,7 +109,7 @@ Follow these rules strictly when making visual changes. Do NOT introduce new col
 
 ## Content rules
 
-- **Never rewrite testimonial text.** Testimonials in `src/components/Testimonials.astro` are real quotes from real students. Do not shorten, rephrase, rearrange, or otherwise alter the wording. You may change layout/styling around them but the `quote` strings must remain exactly as written.
+- **Never rewrite testimonial text.** Testimonials in `src/data/testimonials.ts` are real quotes from real students. Do not shorten, rephrase, rearrange, or otherwise alter the wording. You may change layout/styling around them but the `quote` strings must remain exactly as written.
 
 ## Adding a new game
 
