@@ -17,9 +17,9 @@ Requires Node.js >=22.12.0. Deployed to Cloudflare Workers Builds: push to `main
 
 ## Architecture
 
-**Static site built with Astro 7 + Tailwind CSS 4.** Zero client-side JavaScript by default — games use inline `<script>` blocks with vanilla JS, no framework hydration. The homepage additionally ships three tiny progressive-enhancement scripts (seasonal papel-picado swap, daily word-of-the-day, EsTip width measurement); with JS disabled it renders the year-round banner, the fallback word, and Spanish-sized swap boxes.
+**Static site built with Astro 7 + Tailwind CSS 4.** Zero client-side JavaScript by default — games use inline `<script>` blocks with vanilla JS, no framework hydration. The homepage additionally ships two tiny progressive-enhancement scripts (seasonal papel-picado swap, daily word-of-the-day); with JS disabled it renders the year-round banner and the fallback word.
 
-**Whitespace (Astro 7):** `compressHTML` defaults to `'jsx'`, so whitespace and line breaks *around* elements are stripped; whitespace within a single line is kept. Putting an inline element (`<span>`, `<a>`, `<EsTip>`) on its own source line inside running text welds the words together — `24 USD` + newline + `<span>/ lesson</span>` renders as `24 USD/ lesson`. Keep the inline element on the same line as its neighbouring text, or add an explicit `{" "}`. This only bites inline elements: flex/grid children (nav, footer, breadcrumbs, chip rows) space themselves with `gap-*` and are unaffected. The `whitespace survives around inline elements split across source lines` test in `tests/build.test.ts` guards this.
+**Whitespace (Astro 7):** `compressHTML` defaults to `'jsx'`, so whitespace and line breaks *around* elements are stripped; whitespace within a single line is kept. Putting an inline element (`<span>`, `<a>`) on its own source line inside running text welds the words together — `24 USD` + newline + `<span>/ lesson</span>` renders as `24 USD/ lesson`. Keep the inline element on the same line as its neighbouring text, or add an explicit `{" "}`. This only bites inline elements: flex/grid children (nav, footer, breadcrumbs, chip rows) space themselves with `gap-*` and are unaffected. The `whitespace survives around inline elements split across source lines` test in `tests/build.test.ts` guards this.
 
 ### Key directories
 
@@ -85,7 +85,7 @@ Follow these rules strictly when making visual changes. Do NOT introduce new col
 - **Papel picado:** the `PapelPicado.astro` SVG banner is the signature cultural motif (hero). The talavera diagonal-stripe motif was considered and intentionally removed — do not reintroduce it.
 - **Cultural photography:** license-free (Unsplash/Pexels) + Elena's own portrait; optimized to AVIF/WebP/JPG via `scripts/optimize-images.mjs`; served with plain `<img>`/`<picture>` (never astro:assets/sharp — breaks CF Pages).
 - **Seasonal papel picado:** variants (cuts + palettes + date windows) live in `src/data/picado-seasons.ts` — patrias Sep 1–30, muertos Oct 15–Nov 8, navidad Nov 15–Jan 8; `PapelPicado.astro` swaps them client-side from the visitor's date. Add new holidays there, not in the component.
-- **Inline Spanish:** wrap any Spanish word/phrase inside English copy in `<EsTip en="…">` (`src/components/EsTip.astro`) — on hover/focus/tap the word morphs into its English translation: a measure script records both faces' widths so the box width animates and neighbors glide aside (reduced-motion-gated, correct `lang` tags on both faces; no-JS falls back to a Spanish-sized box). Proper nouns keep a plain `lang="es"` span, no translation.
+- **Inline Spanish:** no hover/tooltip translations anywhere on the site (owner decision; the old `EsTip` hover-swap was removed). Section eyebrows (*Conóceme*, *Precios*, …) are Spanish only, marked `lang="es"` on the styled element. Headlines are English (the hero says *adventure*, not *aventura*). Any other Spanish word in English copy gets a plain `lang="es"` span.
 
 ### Mobile optimization
 

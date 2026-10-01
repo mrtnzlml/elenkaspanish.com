@@ -1153,25 +1153,28 @@ describe("design system (visual uplift)", () => {
     expect(html).toMatch(/calle\.(avif|webp|jpg)/);
     expect($("a:contains('Schedule a free')").length).toBeGreaterThan(0);
   });
-  it("Spanish words carry hover-swap English translations", () => {
+  it("has no hover translations; Spanish subheadings carry lang=es", () => {
     const $ = readPage("/");
-    const tips = $(".es-tip");
-    expect(tips.length).toBeGreaterThanOrEqual(8);
-    tips.each((_, el) => {
-      const t = $(el);
-      expect(t.attr("tabindex"), "focusable for keyboard/tap").toBe("0");
-      expect(t.attr("lang")).toBe("es");
-      expect(t.find(".es-tip-es").length, "Spanish face present").toBe(1);
-      const en = t.find(".es-tip-en");
-      expect(en.length, "English face present").toBe(1);
-      expect(en.attr("lang")).toBe("en");
-      expect(en.text().trim()).not.toBe("");
-    });
+    expect($(".es-tip").length).toBe(0);
+    const eyebrows = [
+      "Cómo funciona",
+      "¿Por qué elegirme?",
+      "Conóceme",
+      "Precios",
+      "Lo que dicen mis alumnos",
+      "Preguntas frecuentes",
+      "¿Listo para empezar?",
+    ];
+    for (const text of eyebrows) {
+      const el = $(`[lang='es']`).filter((_, e) => $(e).text().trim() === text);
+      expect(el.length, text).toBe(1);
+    }
   });
-  it("aventura swaps to adventure in the headline", () => {
+  it("headline says adventure in English", () => {
     const $ = readPage("/");
-    expect($("h1 .es-tip .es-tip-es").text()).toContain("aventura");
-    expect($("h1 .es-tip .es-tip-en").text()).toContain("adventure");
+    const h1 = $("h1").text().replace(/\s+/g, " ");
+    expect(h1).toContain("your adventure");
+    expect(h1).not.toContain("aventura");
   });
   it("every testimonial renders verbatim", () => {
     const $ = readPage("/");
@@ -1219,29 +1222,8 @@ describe("design system (visual uplift)", () => {
       "18 USD / student / lesson",
       "14 USD / student / lesson",
     ]);
-    // <EsTip> renders inline-block inside running text, so the words on either
-    // side must stay separated.
-    $(".es-tip").each((_, el) => {
-      const parent = $(el).parent().text().replace(/\s+/g, " ");
-      const es = $(el).find(".es-tip-es").first().text().trim();
-      if (!es || !parent.includes(es)) return;
-      const i = parent.indexOf(es);
-      const before = parent[i - 1];
-      const after = parent[i + es.length];
-      // A neighbouring character must be whitespace or punctuation — never a
-      // letter, which would mean two words ran together.
-      if (before !== undefined) expect(before).not.toMatch(/\p{L}/u);
-      if (after !== undefined) expect(after).not.toMatch(/\p{L}/u);
-    });
   });
 
-  it("the university proper noun is NOT tooltip-wrapped", () => {
-    const $ = readPage("/");
-    const uni = $("span[lang='es']:contains('Universidad')");
-    expect(uni.length).toBe(1);
-    expect(uni.closest(".es-tip").length).toBe(0);
-    expect(uni.find(".es-tip").length).toBe(0);
-  });
   it("hero word-of-day card has swap targets and ships the daily-word logic", () => {
     const $ = readPage("/");
     expect($("#wod-es").text().trim()).toBe("la aventura"); // SSR fallback
